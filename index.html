@@ -16,10 +16,7 @@ body{margin:0;background:#f3f2ee;font-family:-apple-system,BlinkMacSystemFont,"S
 
 .board-card{background:#fff;border:1px solid #e2ddd4;border-radius:24px;padding:14px}
 
-.win-glow{
-  animation:winGlow 1s ease-in-out infinite;
-}
-
+.win-glow{animation:winGlow 1s ease-in-out infinite}
 @keyframes winGlow{
   0%{box-shadow:0 0 0 0 rgba(24,160,88,.12);border-color:#e2ddd4}
   50%{box-shadow:0 0 0 7px rgba(24,160,88,.28);border-color:#18a058}
@@ -94,7 +91,7 @@ button:active,.pill:active,.tool:active{transform:scale(.98)}
   </div>
 
   <div class="tools">
-    <div class="tool" onclick="hint()">💡 Hint</div>
+    <div class="tool" id="hintBtn" onclick="hint()">💡 Hint</div>
     <div class="tool" onclick="resetBoard()">🔁 Reset</div>
   </div>
 
@@ -121,11 +118,17 @@ let seconds = 0;
 let timer = null;
 let finished = false;
 let conflictFocus = null;
+let hintUsed = 0;
+
+let hintCooldown = false;
+let hintCountdown = 0;
+let hintTimer = null;
 
 const boardEl = document.getElementById("board");
 const timerEl = document.getElementById("timer");
 const msg = document.getElementById("msg");
 const boardCard = document.getElementById("boardCard");
+const hintBtn = document.getElementById("hintBtn");
 
 function vibrate(pattern=15){
   if(navigator.vibrate) navigator.vibrate(pattern);
@@ -252,6 +255,32 @@ function generatePuzzle(){
   return {p,s:sol};
 }
 
+function resetHintCooldown(){
+  clearInterval(hintTimer);
+  hintCooldown = false;
+  hintCountdown = 0;
+  hintBtn.textContent = "💡 Hint";
+  hintBtn.style.opacity = "1";
+}
+
+function startHintCooldown(){
+  hintCooldown = true;
+  hintCountdown = 5;
+  hintBtn.textContent = `💡 ${hintCountdown}s`;
+  hintBtn.style.opacity = "0.55";
+
+  clearInterval(hintTimer);
+  hintTimer = setInterval(()=>{
+    hintCountdown--;
+
+    if(hintCountdown > 0){
+      hintBtn.textContent = `💡 ${hintCountdown}s`;
+    }else{
+      resetHintCooldown();
+    }
+  },1000);
+}
+
 function newGame(){
   const g=generatePuzzle();
   puzzle=g;
@@ -261,11 +290,13 @@ function newGame(){
   selected=null;
   history=[];
   conflictFocus=null;
+  hintUsed=0;
   seconds=0;
   finished=false;
   msg.textContent="";
   timerEl.textContent="0:00";
   boardCard.classList.remove("win-glow");
+  resetHintCooldown();
 
   clearInterval(timer);
   timer=setInterval(()=>{
@@ -348,15 +379,17 @@ function resetBoard(){
   selected=null;
   history=[];
   conflictFocus=null;
+  hintUsed=0;
   msg.textContent="";
   finished=false;
   boardCard.classList.remove("win-glow");
+  resetHintCooldown();
   render();
   vibrate(20);
 }
 
 function hint(){
-  if(finished) return;
+  if(finished || hintCooldown) return;
 
   const options=board
     .map((v,i)=>v!==solution[i] && !puzzle.p[i] ? i : null)
@@ -368,12 +401,15 @@ function hint(){
   const pick=options[Math.floor(Math.random()*options.length)];
   board[pick]=solution[pick];
   selected=pick;
+  hintUsed++;
 
   if(conflictFocus===pick) conflictFocus=null;
 
   render();
   checkWin();
   vibrate(25);
+
+  startHintCooldown();
 }
 
 function highlight(){
@@ -487,7 +523,11 @@ function checkWin(){
   if(board.every((v,i)=>v===solution[i])){
     finished=true;
     clearInterval(timer);
-    msg.textContent="🎉 สำเร็จแล้ว!";
+
+    msg.textContent = hintUsed === 0
+      ? "🎉 ชนะโดยไม่ใช้ Hint เลย!"
+      : `🎉 ชนะแล้ว! ใช้ Hint ${hintUsed} ครั้ง`;
+
     boardCard.classList.add("win-glow");
     vibrate([40,40,80]);
   }
