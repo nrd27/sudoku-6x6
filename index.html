@@ -16,6 +16,16 @@ body{margin:0;background:#f3f2ee;font-family:-apple-system,BlinkMacSystemFont,"S
 
 .board-card{background:#fff;border:1px solid #e2ddd4;border-radius:24px;padding:14px}
 
+.win-glow{
+  animation:winGlow 1s ease-in-out infinite;
+}
+
+@keyframes winGlow{
+  0%{box-shadow:0 0 0 0 rgba(24,160,88,.12);border-color:#e2ddd4}
+  50%{box-shadow:0 0 0 7px rgba(24,160,88,.28);border-color:#18a058}
+  100%{box-shadow:0 0 0 0 rgba(24,160,88,.12);border-color:#e2ddd4}
+}
+
 .board{
   display:grid;
   grid-template-columns:repeat(6,1fr);
@@ -79,7 +89,7 @@ button:active,.pill:active,.tool:active{transform:scale(.98)}
     <div class="pill" onclick="newGame()">🎲 ด่านใหม่</div>
   </div>
 
-  <div class="board-card">
+  <div class="board-card" id="boardCard">
     <div class="board" id="board"></div>
   </div>
 
@@ -115,6 +125,7 @@ let conflictFocus = null;
 const boardEl = document.getElementById("board");
 const timerEl = document.getElementById("timer");
 const msg = document.getElementById("msg");
+const boardCard = document.getElementById("boardCard");
 
 function vibrate(pattern=15){
   if(navigator.vibrate) navigator.vibrate(pattern);
@@ -254,6 +265,7 @@ function newGame(){
   finished=false;
   msg.textContent="";
   timerEl.textContent="0:00";
+  boardCard.classList.remove("win-glow");
 
   clearInterval(timer);
   timer=setInterval(()=>{
@@ -337,6 +349,8 @@ function resetBoard(){
   history=[];
   conflictFocus=null;
   msg.textContent="";
+  finished=false;
+  boardCard.classList.remove("win-glow");
   render();
   vibrate(20);
 }
@@ -474,6 +488,7 @@ function checkWin(){
     finished=true;
     clearInterval(timer);
     msg.textContent="🎉 สำเร็จแล้ว!";
+    boardCard.classList.add("win-glow");
     vibrate([40,40,80]);
   }
 }
