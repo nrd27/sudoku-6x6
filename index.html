@@ -9,139 +9,200 @@
 
 body{
   margin:0;
-  background:#000;
-  font-family:Arial,sans-serif;
+  min-height:100vh;
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;
+  background:#f4f3ef;
 }
 
 .app{
   max-width:430px;
   margin:auto;
   min-height:100vh;
-  background:#fff;
-  padding:18px;
+  background:#faf9f6;
+  padding:18px 16px;
+  display:flex;
+  flex-direction:column;
 }
 
 .header{
   text-align:center;
-  font-size:34px;
-  font-weight:900;
-  margin-top:20px;
+  font-size:28px;
+  font-weight:800;
+  letter-spacing:-.5px;
+  margin-bottom:16px;
 }
 
-.info{
-  margin:28px 0 24px;
+.topbar{
   display:flex;
-  justify-content:flex-start;
-  font-size:22px;
-  font-weight:800;
+  justify-content:space-between;
+  align-items:center;
+  gap:12px;
+  margin-bottom:18px;
+}
+
+.timerBox,
+.newgame{
+  flex:1;
+  height:44px;
+  border-radius:16px;
+  background:#fff;
+  border:1px solid #e5e1da;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:17px;
+  font-weight:700;
+  color:#222;
+}
+
+.newgame{
+  color:#111;
+  cursor:pointer;
+}
+
+.board-wrap{
+  padding:10px;
+  border-radius:22px;
+  background:#fff;
+  border:1px solid #e4e0d8;
 }
 
 .board{
   display:grid;
   grid-template-columns:repeat(6,1fr);
   aspect-ratio:1;
-  border:5px solid #555;
+  border:3px solid #333;
+  border-radius:10px;
+  overflow:hidden;
+  background:#333;
+  gap:1px;
 }
 
 .cell{
-  border:1px solid #555;
   display:flex;
   align-items:center;
   justify-content:center;
-  font-size:36px;
-  font-weight:900;
-  background:#fff;
+  font-size:32px;
+  font-weight:800;
+  background:#fffdf9;
   user-select:none;
-  transition:background .2s ease, transform .15s ease;
+  transition:background .16s ease, box-shadow .16s ease;
 }
 
-.cell:nth-child(3n){border-right:5px solid #555}
+.cell:nth-child(3n){border-right:3px solid #333}
 .cell:nth-child(6n){border-right:none}
 
 .cell:nth-child(n+13):nth-child(-n+18),
 .cell:nth-child(n+25):nth-child(-n+30){
-  border-top:5px solid #555;
+  border-top:3px solid #333;
 }
 
-.given{color:#999}
-.user{color:#000}
+.given{
+  color:#a0a0a0;
+}
 
-.related{background:#f2f6fb}
-.selected{background:#dbeafe!important}
+.user{
+  color:#161616;
+}
+
+.related{
+  background:#f1f6fb;
+}
+
+.selected{
+  background:#dcecff!important;
+  box-shadow:inset 0 0 0 3px #7db8f5;
+}
 
 .completed{
-  background:#d9fdd3!important;
-  animation:pop .25s ease;
+  background:#dcf7d9!important;
+  animation:softComplete .22s ease;
 }
 
-@keyframes pop{
-  0%{transform:scale(1)}
-  50%{transform:scale(1.05)}
-  100%{transform:scale(1)}
+@keyframes softComplete{
+  from{background:#c9f2c4}
+  to{background:#dcf7d9}
 }
 
 .blink-error{
-  background:rgba(255,80,80,.35)!important;
-  animation:blink .45s ease 2;
+  animation:errorSoft .42s ease 2;
 }
 
-@keyframes blink{
-  0%{background:rgba(255,80,80,.05)}
-  50%{background:rgba(255,80,80,.55)}
-  100%{background:rgba(255,80,80,.05)}
+@keyframes errorSoft{
+  0%{box-shadow:inset 0 0 0 0 rgba(229,57,53,0)}
+  50%{background:#ffe8e8; box-shadow:inset 0 0 0 3px rgba(229,57,53,.55)}
+  100%{box-shadow:inset 0 0 0 0 rgba(229,57,53,0)}
 }
 
 .tools{
-  display:flex;
-  justify-content:space-around;
-  margin:24px 0 18px;
-  color:#999;
-  font-size:20px;
-  font-weight:800;
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+  margin:14px 0 12px;
 }
 
-.tool.active{color:#111}
+.tool{
+  height:44px;
+  border-radius:14px;
+  background:#edeae3;
+  color:#666;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:16px;
+  font-weight:700;
+}
+
+.tool.active{
+  background:#222;
+  color:#fff;
+}
 
 .keypad{
   display:grid;
   grid-template-columns:repeat(4,1fr);
-  gap:12px;
+  gap:10px;
 }
 
 button{
-  height:68px;
+  height:56px;
   border:none;
   border-radius:16px;
-  background:#f1f1f1;
-  font-size:32px;
+  background:#fff;
+  border:1px solid #e5e1da;
+  font-size:28px;
   font-weight:800;
-  color:#0a8cff;
+  color:#0a84ff;
 }
 
-button:active{
-  transform:scale(.96);
+button:active,
+.newgame:active,
+.tool:active{
+  transform:scale(.98);
 }
 
 .small{
-  font-size:18px;
-  color:#666;
-}
-
-.newgame{
-  width:100%;
-  margin-top:24px;
-  height:64px;
-  border-radius:36px;
-  background:#333;
-  color:#fff;
-  font-size:24px;
+  font-size:15px;
+  color:#555;
+  line-height:1.1;
 }
 
 .msg{
+  min-height:26px;
   text-align:center;
-  margin-top:16px;
-  font-size:20px;
-  font-weight:900;
+  margin-top:10px;
+  font-size:18px;
+  font-weight:800;
+  color:#18a058;
+}
+
+@media (max-height:740px){
+  .header{font-size:24px;margin-bottom:10px}
+  .topbar{margin-bottom:12px}
+  .board-wrap{padding:8px}
+  .cell{font-size:29px}
+  button{height:50px}
+  .tool{height:40px}
 }
 </style>
 </head>
@@ -151,11 +212,14 @@ button:active{
 
   <div class="header">Mini Sudoku</div>
 
-  <div class="info">
-    <div>⏱ <span id="timer">0:00</span></div>
+  <div class="topbar">
+    <div class="timerBox">⏱ <span id="timer">0:00</span></div>
+    <div class="newgame" onclick="newGame()">🎲 ด่านใหม่</div>
   </div>
 
-  <div class="board" id="board"></div>
+  <div class="board-wrap">
+    <div class="board" id="board"></div>
+  </div>
 
   <div class="tools">
     <div class="tool" onclick="hint()">💡 คำใบ้</div>
@@ -174,8 +238,6 @@ button:active{
     <button class="small" onclick="undo()">↶<br>เลิกทำ</button>
   </div>
 
-  <button class="newgame" onclick="newGame()">🎲 สุ่มด่านใหม่</button>
-
   <div class="msg" id="msg"></div>
 
 </div>
@@ -183,64 +245,20 @@ button:active{
 <script>
 const puzzles = [
   {
-    p:[
-      0,1,2,3,0,0,
-      0,4,0,0,0,0,
-      0,5,0,0,0,0,
-      0,0,0,0,2,0,
-      0,0,0,0,5,0,
-      0,0,1,2,3,0
-    ],
-    s:[
-      6,1,2,3,4,5,
-      3,4,5,1,6,2,
-      2,5,6,4,1,3,
-      1,3,4,5,2,6,
-      4,2,3,6,5,1,
-      5,6,1,2,3,4
-    ]
+    p:[0,1,2,3,0,0, 0,4,0,0,0,0, 0,5,0,0,0,0, 0,0,0,0,2,0, 0,0,0,0,5,0, 0,0,1,2,3,0],
+    s:[6,1,2,3,4,5, 3,4,5,1,6,2, 2,5,6,4,1,3, 1,3,4,5,2,6, 4,2,3,6,5,1, 5,6,1,2,3,4]
   },
   {
-    p:[
-      6,0,0,0,0,5,
-      0,0,5,0,6,0,
-      0,0,6,4,0,0,
-      0,3,0,5,0,0,
-      0,0,3,6,0,0,
-      5,0,0,0,0,4
-    ],
-    s:[
-      6,1,2,3,4,5,
-      3,4,5,1,6,2,
-      2,5,6,4,1,3,
-      1,3,4,5,2,6,
-      4,2,3,6,5,1,
-      5,6,1,2,3,4
-    ]
+    p:[6,0,0,0,0,5, 0,0,5,0,6,0, 0,0,6,4,0,0, 0,3,0,5,0,0, 0,0,3,6,0,0, 5,0,0,0,0,4],
+    s:[6,1,2,3,4,5, 3,4,5,1,6,2, 2,5,6,4,1,3, 1,3,4,5,2,6, 4,2,3,6,5,1, 5,6,1,2,3,4]
   },
   {
-    p:[
-      0,0,2,0,0,5,
-      0,4,0,0,6,0,
-      2,0,0,4,0,0,
-      0,0,4,0,2,0,
-      4,0,0,0,0,1,
-      0,6,0,2,0,0
-    ],
-    s:[
-      6,1,2,3,4,5,
-      3,4,5,1,6,2,
-      2,5,6,4,1,3,
-      1,3,4,5,2,6,
-      4,2,3,6,5,1,
-      5,6,1,2,3,4
-    ]
+    p:[0,0,2,0,0,5, 0,4,0,0,6,0, 2,0,0,4,0,0, 0,0,4,0,2,0, 4,0,0,0,0,1, 0,6,0,2,0,0],
+    s:[6,1,2,3,4,5, 3,4,5,1,6,2, 2,5,6,4,1,3, 1,3,4,5,2,6, 4,2,3,6,5,1, 5,6,1,2,3,4]
   }
 ];
 
-let puzzle;
-let board;
-let solution;
+let puzzle, board, solution;
 let selected = null;
 let history = [];
 let noteMode = false;
@@ -248,25 +266,8 @@ let seconds = 0;
 let timer = null;
 let finished = false;
 
-function vibrate(ms=20){
+function vibrate(ms=12){
   if(navigator.vibrate) navigator.vibrate(ms);
-}
-
-function playClick(){
-  try{
-    const ctx = new (window.AudioContext || window.webkitAudioContext)();
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
-
-    osc.connect(gain);
-    gain.connect(ctx.destination);
-
-    osc.frequency.value = 600;
-    gain.gain.value = 0.03;
-
-    osc.start();
-    osc.stop(ctx.currentTime + 0.04);
-  }catch(e){}
 }
 
 function newGame(){
@@ -285,12 +286,11 @@ function newGame(){
   timer = setInterval(tick,1000);
 
   render();
-  vibrate(20);
+  vibrate(10);
 }
 
 function tick(){
   if(finished) return;
-
   seconds++;
 
   const m = Math.floor(seconds / 60);
@@ -317,7 +317,6 @@ function render(){
     }
 
     cell.onclick = () => selectCell(index);
-
     boardEl.appendChild(cell);
   });
 
@@ -328,7 +327,6 @@ function render(){
 function selectCell(index){
   selected = index;
   render();
-  playClick();
 }
 
 function saveHistory(){
@@ -345,8 +343,7 @@ function pressNum(num){
   render();
   checkConflicts();
   checkFinish();
-  playClick();
-  vibrate(15);
+  vibrate(8);
 }
 
 function erase(){
@@ -358,19 +355,16 @@ function erase(){
 
   render();
   checkConflicts();
-  playClick();
-  vibrate(15);
+  vibrate(8);
 }
 
 function undo(){
   if(history.length === 0 || finished) return;
 
   board = history.pop();
-
   render();
   checkConflicts();
-  playClick();
-  vibrate(15);
+  vibrate(8);
 }
 
 function toggleNote(){
@@ -379,8 +373,6 @@ function toggleNote(){
   const btn = document.getElementById("noteBtn");
   btn.textContent = noteMode ? "✎ Note เปิด" : "✎ Note ปิด";
   btn.classList.toggle("active", noteMode);
-
-  playClick();
 }
 
 function hint(){
@@ -400,17 +392,11 @@ function hint(){
 
   render();
   checkFinish();
-
-  playClick();
-  vibrate(40);
+  vibrate(18);
 }
 
 function applyHighlight(){
   const cells = document.querySelectorAll(".cell");
-
-  cells.forEach(cell=>{
-    cell.classList.remove("selected","related");
-  });
 
   if(selected === null) return;
 
@@ -426,12 +412,12 @@ function applyHighlight(){
     const boxRow = Math.floor(row / 2);
     const boxCol = Math.floor(col / 3);
 
-    const sameRow = row === selectedRow;
-    const sameCol = col === selectedCol;
-    const sameBox = boxRow === selectedBoxRow && boxCol === selectedBoxCol;
-    const sameNumber = selectedValue && board[index] === selectedValue;
-
-    if(sameRow || sameCol || sameBox || sameNumber){
+    if(
+      row === selectedRow ||
+      col === selectedCol ||
+      (boxRow === selectedBoxRow && boxCol === selectedBoxCol) ||
+      (selectedValue && board[index] === selectedValue)
+    ){
       cell.classList.add("related");
     }
   });
@@ -442,13 +428,8 @@ function applyHighlight(){
 function markCompletedLines(){
   const cells = document.querySelectorAll(".cell");
 
-  cells.forEach(cell=>{
-    cell.classList.remove("completed");
-  });
-
   for(let row=0; row<6; row++){
     let correct = true;
-
     for(let col=0; col<6; col++){
       const index = row * 6 + col;
       if(board[index] !== solution[index]) correct = false;
@@ -463,7 +444,6 @@ function markCompletedLines(){
 
   for(let col=0; col<6; col++){
     let correct = true;
-
     for(let row=0; row<6; row++){
       const index = row * 6 + col;
       if(board[index] !== solution[index]) correct = false;
@@ -526,9 +506,7 @@ function checkConflicts(){
     });
 
     Object.values(seen).forEach(group=>{
-      if(group.length > 1){
-        blinkCells(group);
-      }
+      if(group.length > 1) blinkCells(group);
     });
   };
 
@@ -564,8 +542,7 @@ function checkFinish(){
     finished = true;
     clearInterval(timer);
     document.getElementById("msg").textContent = "🎉 สำเร็จแล้ว!";
-    playClick();
-    vibrate(120);
+    vibrate(60);
   }
 }
 
