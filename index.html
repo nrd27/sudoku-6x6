@@ -3,290 +3,574 @@
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Mini Sudoku</title>
+
 <style>
 *{box-sizing:border-box}
-body{margin:0;background:#000;font-family:Arial,sans-serif}
-.app{max-width:430px;margin:auto;min-height:100vh;background:#fff;padding:18px}
-.header{display:flex;justify-content:space-between;align-items:center;font-size:28px;font-weight:800}
-.sub{text-align:center;color:#777;margin-top:4px}
-.info{display:flex;justify-content:space-between;margin:34px 0 24px;font-size:20px}
-.timer{font-weight:800}
-.reset{color:#aaa;font-weight:800}
-.board{display:grid;grid-template-columns:repeat(6,1fr);aspect-ratio:1;border:5px solid #666}
-.cell{position:relative;border:1px solid #666;display:flex;align-items:center;justify-content:center;font-size:34px;font-weight:800;background:#fff;user-select:none}
-.cell:nth-child(3n){border-right:5px solid #666}
+
+body{
+  margin:0;
+  background:#000;
+  font-family:Arial,sans-serif;
+}
+
+.app{
+  max-width:430px;
+  margin:auto;
+  min-height:100vh;
+  background:#fff;
+  padding:18px;
+}
+
+.header{
+  text-align:center;
+  font-size:34px;
+  font-weight:900;
+  margin-top:20px;
+}
+
+.info{
+  margin:28px 0 24px;
+  display:flex;
+  justify-content:flex-start;
+  font-size:22px;
+  font-weight:800;
+}
+
+.board{
+  display:grid;
+  grid-template-columns:repeat(6,1fr);
+  aspect-ratio:1;
+  border:5px solid #555;
+}
+
+.cell{
+  border:1px solid #555;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:36px;
+  font-weight:900;
+  background:#fff;
+  user-select:none;
+  transition:background .2s ease, transform .15s ease;
+}
+
+.cell:nth-child(3n){border-right:5px solid #555}
 .cell:nth-child(6n){border-right:none}
+
 .cell:nth-child(n+13):nth-child(-n+18),
-.cell:nth-child(n+25):nth-child(-n+30){border-top:5px solid #666}
+.cell:nth-child(n+25):nth-child(-n+30){
+  border-top:5px solid #555;
+}
+
 .given{color:#999}
-.user{color:#111}
-.related{background:#f3f6fa}
+.user{color:#000}
+
+.related{background:#f2f6fb}
 .selected{background:#dbeafe!important}
-.error{background:#ffdada!important}
-.rowdone{background:#d9fdd3!important}
-.note{position:absolute;font-size:12px;color:#777;top:4px;left:4px;right:4px;display:grid;grid-template-columns:repeat(3,1fr);gap:1px;font-weight:600}
-.tools{display:flex;justify-content:space-around;margin:22px 0 16px;color:#bbb;font-weight:800}
+
+.completed{
+  background:#d9fdd3!important;
+  animation:pop .25s ease;
+}
+
+@keyframes pop{
+  0%{transform:scale(1)}
+  50%{transform:scale(1.05)}
+  100%{transform:scale(1)}
+}
+
+.blink-error{
+  background:rgba(255,80,80,.35)!important;
+  animation:blink .45s ease 2;
+}
+
+@keyframes blink{
+  0%{background:rgba(255,80,80,.05)}
+  50%{background:rgba(255,80,80,.55)}
+  100%{background:rgba(255,80,80,.05)}
+}
+
+.tools{
+  display:flex;
+  justify-content:space-around;
+  margin:24px 0 18px;
+  color:#999;
+  font-size:20px;
+  font-weight:800;
+}
+
 .tool.active{color:#111}
-.keypad{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
-.key{height:66px;border:0;border-radius:14px;background:#f1f1f1;font-size:32px;color:#111}
-.key.small{font-size:17px;color:#666}
-.result{width:100%;height:72px;margin-top:26px;border:0;border-radius:40px;background:#3d3d3d;color:#fff;font-size:24px;font-weight:800}
-.msg{text-align:center;margin-top:14px;font-weight:800}
-.win{background:#111;color:white;border-radius:18px;padding:18px;margin-top:18px;text-align:center;display:none}
-.win button{margin-top:12px;height:48px;border:0;border-radius:24px;padding:0 24px;font-size:18px;font-weight:800}
+
+.keypad{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:12px;
+}
+
+button{
+  height:68px;
+  border:none;
+  border-radius:16px;
+  background:#f1f1f1;
+  font-size:32px;
+  font-weight:800;
+  color:#0a8cff;
+}
+
+button:active{
+  transform:scale(.96);
+}
+
+.small{
+  font-size:18px;
+  color:#666;
+}
+
+.newgame{
+  width:100%;
+  margin-top:24px;
+  height:64px;
+  border-radius:36px;
+  background:#333;
+  color:#fff;
+  font-size:24px;
+}
+
+.msg{
+  text-align:center;
+  margin-top:16px;
+  font-size:20px;
+  font-weight:900;
+}
 </style>
 </head>
 
 <body>
 <div class="app">
-  <div class="header">
-    <div>←</div>
-    <div>Mini Sudoku</div>
-    <div>⚙</div>
-  </div>
-  <div class="sub">6x6 puzzle</div>
+
+  <div class="header">Mini Sudoku</div>
 
   <div class="info">
-    <div class="timer">◷ <span id="timer">0:00</span></div>
-    <div id="level">#001 Easy</div>
-    <div class="reset" onclick="newGame()">รีเซ็ต</div>
+    <div>⏱ <span id="timer">0:00</span></div>
   </div>
 
   <div class="board" id="board"></div>
 
   <div class="tools">
     <div class="tool" onclick="hint()">💡 คำใบ้</div>
-    <div class="tool" id="noteBtn" onclick="toggleNote()">✎ หมายเหตุ ปิด</div>
+    <div class="tool" id="noteBtn" onclick="toggleNote()">✎ Note ปิด</div>
   </div>
 
   <div class="keypad">
-    <button class="key" onclick="pressNum(1)">1</button>
-    <button class="key" onclick="pressNum(2)">2</button>
-    <button class="key" onclick="pressNum(3)">3</button>
-    <button class="key small" onclick="erase()">✕<br>ลบ</button>
-    <button class="key" onclick="pressNum(4)">4</button>
-    <button class="key" onclick="pressNum(5)">5</button>
-    <button class="key" onclick="pressNum(6)">6</button>
-    <button class="key small" onclick="undo()">↶<br>เลิกทำ</button>
+    <button onclick="pressNum(1)">1</button>
+    <button onclick="pressNum(2)">2</button>
+    <button onclick="pressNum(3)">3</button>
+    <button class="small" onclick="erase()">✕<br>ลบ</button>
+
+    <button onclick="pressNum(4)">4</button>
+    <button onclick="pressNum(5)">5</button>
+    <button onclick="pressNum(6)">6</button>
+    <button class="small" onclick="undo()">↶<br>เลิกทำ</button>
   </div>
 
-  <button class="result" onclick="checkResult()">ดูผลลัพธ์</button>
+  <button class="newgame" onclick="newGame()">🎲 สุ่มด่านใหม่</button>
+
   <div class="msg" id="msg"></div>
 
-  <div class="win" id="winBox">
-    🎉 สำเร็จแล้ว!<br>
-    <button onclick="newGame()">สุ่มด่านใหม่</button>
-  </div>
 </div>
 
 <script>
-const puzzles=[
-{
-id:"#001 Easy",
-p:[0,1,2,3,0,0, 0,4,0,0,0,0, 0,5,0,0,0,0, 0,0,0,0,2,0, 0,0,0,0,5,0, 0,0,1,2,3,0],
-s:[6,1,2,3,4,5, 3,4,5,1,6,2, 2,5,6,4,1,3, 1,3,4,5,2,6, 4,2,3,6,5,1, 5,6,1,2,3,4]
-},
-{
-id:"#002 Medium",
-p:[6,0,0,0,0,5, 0,0,5,0,6,0, 0,0,6,4,0,0, 0,3,0,5,0,0, 0,0,3,6,0,0, 5,0,0,0,0,4],
-s:[6,1,2,3,4,5, 3,4,5,1,6,2, 2,5,6,4,1,3, 1,3,4,5,2,6, 4,2,3,6,5,1, 5,6,1,2,3,4]
-},
-{
-id:"#003 Hard",
-p:[0,0,2,0,0,5, 0,4,0,0,6,0, 2,0,0,4,0,0, 0,0,4,0,2,0, 4,0,0,0,0,1, 0,6,0,2,0,0],
-s:[6,1,2,3,4,5, 3,4,5,1,6,2, 2,5,6,4,1,3, 1,3,4,5,2,6, 4,2,3,6,5,1, 5,6,1,2,3,4]
-}
+const puzzles = [
+  {
+    p:[
+      0,1,2,3,0,0,
+      0,4,0,0,0,0,
+      0,5,0,0,0,0,
+      0,0,0,0,2,0,
+      0,0,0,0,5,0,
+      0,0,1,2,3,0
+    ],
+    s:[
+      6,1,2,3,4,5,
+      3,4,5,1,6,2,
+      2,5,6,4,1,3,
+      1,3,4,5,2,6,
+      4,2,3,6,5,1,
+      5,6,1,2,3,4
+    ]
+  },
+  {
+    p:[
+      6,0,0,0,0,5,
+      0,0,5,0,6,0,
+      0,0,6,4,0,0,
+      0,3,0,5,0,0,
+      0,0,3,6,0,0,
+      5,0,0,0,0,4
+    ],
+    s:[
+      6,1,2,3,4,5,
+      3,4,5,1,6,2,
+      2,5,6,4,1,3,
+      1,3,4,5,2,6,
+      4,2,3,6,5,1,
+      5,6,1,2,3,4
+    ]
+  },
+  {
+    p:[
+      0,0,2,0,0,5,
+      0,4,0,0,6,0,
+      2,0,0,4,0,0,
+      0,0,4,0,2,0,
+      4,0,0,0,0,1,
+      0,6,0,2,0,0
+    ],
+    s:[
+      6,1,2,3,4,5,
+      3,4,5,1,6,2,
+      2,5,6,4,1,3,
+      1,3,4,5,2,6,
+      4,2,3,6,5,1,
+      5,6,1,2,3,4
+    ]
+  }
 ];
 
-let puzzle, board, solution, selected=null, history=[], notes=[], noteMode=false;
-let seconds=0, timer=null, finished=false;
+let puzzle;
+let board;
+let solution;
+let selected = null;
+let history = [];
+let noteMode = false;
+let seconds = 0;
+let timer = null;
+let finished = false;
+
+function vibrate(ms=20){
+  if(navigator.vibrate) navigator.vibrate(ms);
+}
+
+function playClick(){
+  try{
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+
+    osc.frequency.value = 600;
+    gain.gain.value = 0.03;
+
+    osc.start();
+    osc.stop(ctx.currentTime + 0.04);
+  }catch(e){}
+}
 
 function newGame(){
-  puzzle=puzzles[Math.floor(Math.random()*puzzles.length)];
-  board=[...puzzle.p];
-  solution=[...puzzle.s];
-  notes=Array.from({length:36},()=>[]);
-  history=[];
-  selected=null;
-  seconds=0;
-  finished=false;
-  document.getElementById("level").textContent=puzzle.id;
-  document.getElementById("msg").textContent="";
-  document.getElementById("winBox").style.display="none";
+  puzzle = puzzles[Math.floor(Math.random() * puzzles.length)];
+  board = [...puzzle.p];
+  solution = [...puzzle.s];
+  history = [];
+  selected = null;
+  seconds = 0;
+  finished = false;
+
+  document.getElementById("timer").textContent = "0:00";
+  document.getElementById("msg").textContent = "";
+
   clearInterval(timer);
-  timer=setInterval(tick,1000);
+  timer = setInterval(tick,1000);
+
   render();
+  vibrate(20);
 }
 
 function tick(){
-  if(finished)return;
+  if(finished) return;
+
   seconds++;
-  let m=Math.floor(seconds/60), s=seconds%60;
-  document.getElementById("timer").textContent=`${m}:${String(s).padStart(2,"0")}`;
+
+  const m = Math.floor(seconds / 60);
+  const s = seconds % 60;
+
+  document.getElementById("timer").textContent =
+    `${m}:${String(s).padStart(2,"0")}`;
 }
 
 function render(){
-  const boardEl=document.getElementById("board");
-  boardEl.innerHTML="";
-  board.forEach((v,i)=>{
-    const c=document.createElement("div");
-    c.className="cell";
-    if(puzzle.p[i]!==0)c.classList.add("given");
-    else c.classList.add("user");
-    if(v)c.textContent=v;
-    else if(notes[i].length){
-      const n=document.createElement("div");
-      n.className="note";
-      for(let x=1;x<=6;x++){
-        const span=document.createElement("span");
-        span.textContent=notes[i].includes(x)?x:"";
-        n.appendChild(span);
-      }
-      c.appendChild(n);
+  const boardEl = document.getElementById("board");
+  boardEl.innerHTML = "";
+
+  board.forEach((value,index)=>{
+    const cell = document.createElement("div");
+    cell.className = "cell";
+
+    if(value) cell.textContent = value;
+
+    if(puzzle.p[index] !== 0){
+      cell.classList.add("given");
+    }else{
+      cell.classList.add("user");
     }
-    c.onclick=()=>select(i);
-    boardEl.appendChild(c);
+
+    cell.onclick = () => selectCell(index);
+
+    boardEl.appendChild(cell);
   });
+
   applyHighlight();
-  markRowsDone();
+  markCompletedLines();
 }
 
-function select(i){
-  selected=i;
+function selectCell(index){
+  selected = index;
   render();
+  playClick();
 }
 
-function save(){
-  history.push({board:[...board],notes:notes.map(n=>[...n])});
+function saveHistory(){
+  history.push([...board]);
 }
 
-function pressNum(n){
-  if(selected===null || finished)return;
-  if(puzzle.p[selected]!==0)return;
+function pressNum(num){
+  if(selected === null || finished) return;
+  if(puzzle.p[selected] !== 0) return;
 
-  save();
-
-  if(noteMode){
-    if(board[selected])return;
-    if(notes[selected].includes(n)) notes[selected]=notes[selected].filter(x=>x!==n);
-    else notes[selected].push(n);
-  }else{
-    board[selected]=n;
-    notes[selected]=[];
-  }
+  saveHistory();
+  board[selected] = num;
 
   render();
-  checkAutoWin();
+  checkConflicts();
+  checkFinish();
+  playClick();
+  vibrate(15);
 }
 
 function erase(){
-  if(selected===null || finished)return;
-  if(puzzle.p[selected]!==0)return;
-  save();
-  board[selected]=0;
-  notes[selected]=[];
+  if(selected === null || finished) return;
+  if(puzzle.p[selected] !== 0) return;
+
+  saveHistory();
+  board[selected] = 0;
+
   render();
+  checkConflicts();
+  playClick();
+  vibrate(15);
 }
 
 function undo(){
-  if(!history.length || finished)return;
-  const last=history.pop();
-  board=[...last.board];
-  notes=last.notes.map(n=>[...n]);
+  if(history.length === 0 || finished) return;
+
+  board = history.pop();
+
   render();
+  checkConflicts();
+  playClick();
+  vibrate(15);
 }
 
 function toggleNote(){
-  noteMode=!noteMode;
-  const btn=document.getElementById("noteBtn");
-  btn.textContent=noteMode?"✎ หมายเหตุ เปิด":"✎ หมายเหตุ ปิด";
-  btn.classList.toggle("active",noteMode);
+  noteMode = !noteMode;
+
+  const btn = document.getElementById("noteBtn");
+  btn.textContent = noteMode ? "✎ Note เปิด" : "✎ Note ปิด";
+  btn.classList.toggle("active", noteMode);
+
+  playClick();
 }
 
 function hint(){
-  if(finished)return;
-  const wrongOrEmpty=board.map((v,i)=>v!==solution[i]?i:null).filter(i=>i!==null && puzzle.p[i]===0);
-  if(!wrongOrEmpty.length)return;
-  save();
-  const pick=wrongOrEmpty[Math.floor(Math.random()*wrongOrEmpty.length)];
-  board[pick]=solution[pick];
-  notes[pick]=[];
-  selected=pick;
+  if(finished) return;
+
+  const available = board
+    .map((value,index)=> value !== solution[index] && puzzle.p[index] === 0 ? index : null)
+    .filter(index => index !== null);
+
+  if(available.length === 0) return;
+
+  saveHistory();
+
+  const pick = available[Math.floor(Math.random() * available.length)];
+  board[pick] = solution[pick];
+  selected = pick;
+
   render();
-  checkAutoWin();
+  checkFinish();
+
+  playClick();
+  vibrate(40);
 }
 
 function applyHighlight(){
-  const cells=document.querySelectorAll(".cell");
-  cells.forEach(c=>c.classList.remove("selected","related","error"));
+  const cells = document.querySelectorAll(".cell");
 
-  if(selected===null)return;
+  cells.forEach(cell=>{
+    cell.classList.remove("selected","related");
+  });
 
-  const sr=Math.floor(selected/6), sc=selected%6;
-  const sbR=Math.floor(sr/2), sbC=Math.floor(sc/3);
-  const val=board[selected];
+  if(selected === null) return;
 
-  cells.forEach((c,i)=>{
-    const r=Math.floor(i/6), col=i%6;
-    const sameRow=r===sr;
-    const sameCol=col===sc;
-    const sameBox=Math.floor(r/2)===sbR && Math.floor(col/3)===sbC;
-    const sameNum=val && board[i]===val;
+  const selectedRow = Math.floor(selected / 6);
+  const selectedCol = selected % 6;
+  const selectedBoxRow = Math.floor(selectedRow / 2);
+  const selectedBoxCol = Math.floor(selectedCol / 3);
+  const selectedValue = board[selected];
 
-    if(sameRow||sameCol||sameBox||sameNum)c.classList.add("related");
+  cells.forEach((cell,index)=>{
+    const row = Math.floor(index / 6);
+    const col = index % 6;
+    const boxRow = Math.floor(row / 2);
+    const boxCol = Math.floor(col / 3);
+
+    const sameRow = row === selectedRow;
+    const sameCol = col === selectedCol;
+    const sameBox = boxRow === selectedBoxRow && boxCol === selectedBoxCol;
+    const sameNumber = selectedValue && board[index] === selectedValue;
+
+    if(sameRow || sameCol || sameBox || sameNumber){
+      cell.classList.add("related");
+    }
   });
 
   cells[selected].classList.add("selected");
-
-  board.forEach((v,i)=>{
-    if(v && v!==solution[i]) cells[i].classList.add("error");
-  });
 }
 
-function markRowsDone(){
-  const cells=document.querySelectorAll(".cell");
+function markCompletedLines(){
+  const cells = document.querySelectorAll(".cell");
 
-  for(let r=0;r<6;r++){
-    let ok=true;
-    for(let c=0;c<6;c++){
-      const i=r*6+c;
-      if(board[i]!==solution[i])ok=false;
+  cells.forEach(cell=>{
+    cell.classList.remove("completed");
+  });
+
+  for(let row=0; row<6; row++){
+    let correct = true;
+
+    for(let col=0; col<6; col++){
+      const index = row * 6 + col;
+      if(board[index] !== solution[index]) correct = false;
     }
-    if(ok){
-      for(let c=0;c<6;c++){
-        cells[r*6+c].classList.add("rowdone");
+
+    if(correct){
+      for(let col=0; col<6; col++){
+        cells[row * 6 + col].classList.add("completed");
+      }
+    }
+  }
+
+  for(let col=0; col<6; col++){
+    let correct = true;
+
+    for(let row=0; row<6; row++){
+      const index = row * 6 + col;
+      if(board[index] !== solution[index]) correct = false;
+    }
+
+    if(correct){
+      for(let row=0; row<6; row++){
+        cells[row * 6 + col].classList.add("completed");
+      }
+    }
+  }
+
+  for(let blockRow=0; blockRow<3; blockRow++){
+    for(let blockCol=0; blockCol<2; blockCol++){
+      let correct = true;
+      let blockCells = [];
+
+      for(let r=0; r<2; r++){
+        for(let c=0; c<3; c++){
+          const row = blockRow * 2 + r;
+          const col = blockCol * 3 + c;
+          const index = row * 6 + col;
+
+          blockCells.push(index);
+
+          if(board[index] !== solution[index]) correct = false;
+        }
+      }
+
+      if(correct){
+        blockCells.forEach(index=>{
+          cells[index].classList.add("completed");
+        });
       }
     }
   }
 }
 
-function checkAutoWin(){
-  if(board.every((v,i)=>v===solution[i])){
-    finished=true;
-    clearInterval(timer);
-    document.getElementById("msg").textContent="ถูกต้อง 🎉";
-    document.getElementById("msg").style.color="green";
-    document.getElementById("winBox").style.display="block";
+function checkConflicts(){
+  const cells = document.querySelectorAll(".cell");
+
+  const blinkCells = (indices)=>{
+    indices.forEach(i=>{
+      const el = cells[i];
+      el.classList.remove("blink-error");
+      void el.offsetWidth;
+      el.classList.add("blink-error");
+    });
+  };
+
+  const checkGroup = (indices)=>{
+    const seen = {};
+
+    indices.forEach(i=>{
+      const v = board[i];
+      if(!v) return;
+
+      if(!seen[v]) seen[v] = [];
+      seen[v].push(i);
+    });
+
+    Object.values(seen).forEach(group=>{
+      if(group.length > 1){
+        blinkCells(group);
+      }
+    });
+  };
+
+  for(let row=0; row<6; row++){
+    checkGroup(Array.from({length:6},(_,col)=>row*6+col));
+  }
+
+  for(let col=0; col<6; col++){
+    checkGroup(Array.from({length:6},(_,row)=>row*6+col));
+  }
+
+  for(let blockRow=0; blockRow<3; blockRow++){
+    for(let blockCol=0; blockCol<2; blockCol++){
+      const block = [];
+
+      for(let r=0; r<2; r++){
+        for(let c=0; c<3; c++){
+          const row = blockRow * 2 + r;
+          const col = blockCol * 3 + c;
+          block.push(row * 6 + col);
+        }
+      }
+
+      checkGroup(block);
+    }
   }
 }
 
-function checkResult(){
-  if(finished)return;
-  if(board.includes(0)){
-    document.getElementById("msg").textContent="ยังมีช่องว่างอยู่";
-    document.getElementById("msg").style.color="#999";
-    return;
-  }
-  if(board.every((v,i)=>v===solution[i])){
-    checkAutoWin();
-  }else{
-    document.getElementById("msg").textContent="ยังมีคำตอบผิดอยู่";
-    document.getElementById("msg").style.color="red";
-    render();
+function checkFinish(){
+  const complete = board.every((value,index)=>value === solution[index]);
+
+  if(complete){
+    finished = true;
+    clearInterval(timer);
+    document.getElementById("msg").textContent = "🎉 สำเร็จแล้ว!";
+    playClick();
+    vibrate(120);
   }
 }
 
 newGame();
 </script>
+
 </body>
 </html>
