@@ -223,7 +223,7 @@ function generatePuzzle(){
   const sol=generateSolution();
   const p=[...sol];
   const cells=shuffle([...Array(36).keys()]);
-  const targetClues=9+Math.floor(Math.random()*3);
+  const targetClues=9+Math.floor(Math.random()*2);
 
   for(const i of cells){
     const backup=p[i];
