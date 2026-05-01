@@ -2,72 +2,357 @@
 <html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mini Sudoku 6x6</title>
 <style>
-body { font-family: sans-serif; text-align: center; }
-.grid {
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #000;
+}
+
+.app {
+  max-width: 430px;
+  min-height: 100vh;
+  margin: auto;
+  background: #fff;
+  border-radius: 18px 18px 0 0;
+  padding: 18px 18px 28px;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 28px;
+  font-weight: 700;
+}
+
+.icon {
+  font-size: 28px;
+  color: #333;
+}
+
+.sub {
+  text-align: center;
+  color: #777;
+  font-size: 15px;
+  margin-top: -4px;
+}
+
+.info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 38px 0 28px;
+  font-size: 22px;
+}
+
+.timer {
+  font-weight: 700;
+}
+
+.reset {
+  color: #aaa;
+  font-weight: 700;
+}
+
+.board {
   display: grid;
-  grid-template-columns: repeat(6, 50px);
-  gap: 5px;
-  justify-content: center;
-  margin: 20px;
+  grid-template-columns: repeat(6, 1fr);
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  border: 4px solid #666;
+  margin: auto;
 }
+
 .cell {
-  width: 50px; height: 50px;
-  border: 1px solid #aaa;
-  font-size: 20px;
-  display:flex; align-items:center; justify-content:center;
-}
-.pad {
+  border: 1px solid #666;
   display: flex;
   justify-content: center;
-  gap: 10px;
+  align-items: center;
+  font-size: 34px;
+  font-weight: 700;
+  background: #fff;
+  user-select: none;
 }
-.pad button {
-  font-size: 20px;
-  padding: 10px;
+
+.cell:nth-child(3n) {
+  border-right: 4px solid #666;
+}
+
+.cell:nth-child(6n) {
+  border-right: none;
+}
+
+.cell:nth-child(n+13):nth-child(-n+18),
+.cell:nth-child(n+25):nth-child(-n+30) {
+  border-top: 4px solid #666;
+}
+
+.given {
+  color: #999;
+}
+
+.user {
+  color: #111;
+}
+
+.selected {
+  background: #e9f2ff;
+}
+
+.same {
+  background: #f2f6fb;
+}
+
+.error {
+  background: #ffe1e1;
+}
+
+.tools {
+  display: flex;
+  justify-content: space-around;
+  color: #ccc;
+  margin: 24px 0 18px;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.keypad {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+
+.key {
+  height: 68px;
+  border: none;
+  border-radius: 14px;
+  background: #f1f1f1;
+  font-size: 32px;
+  color: #111;
+}
+
+.key.small {
+  font-size: 18px;
+  color: #777;
+}
+
+.key:active {
+  transform: scale(0.96);
+}
+
+.result {
+  width: 100%;
+  margin-top: 28px;
+  height: 72px;
+  border: none;
+  border-radius: 40px;
+  background: #3d3d3d;
+  color: white;
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.message {
+  text-align: center;
+  margin-top: 14px;
+  font-size: 16px;
+  font-weight: 700;
 }
 </style>
 </head>
 
 <body>
+<div class="app">
+  <div class="header">
+    <div class="icon">←</div>
+    <div>Mini Sudoku</div>
+    <div class="icon">⚙</div>
+  </div>
+  <div class="sub">6x6 puzzle</div>
 
-<h3>Sudoku 6x6</h3>
-<div class="grid" id="grid"></div>
+  <div class="info">
+    <div class="timer">◷ <span id="timer">0:00</span></div>
+    <div>#001 Easy</div>
+    <div class="reset" onclick="resetGame()">รีเซ็ต</div>
+  </div>
 
-<div class="pad" id="pad"></div>
+  <div class="board" id="board"></div>
+
+  <div class="tools">
+    <div>💡 คำใบ้</div>
+    <div>✎ หมายเหตุ ปิด</div>
+  </div>
+
+  <div class="keypad">
+    <button class="key" onclick="inputNumber(1)">1</button>
+    <button class="key" onclick="inputNumber(2)">2</button>
+    <button class="key" onclick="inputNumber(3)">3</button>
+    <button class="key small" onclick="deleteNumber()">✕<br>ลบ</button>
+
+    <button class="key" onclick="inputNumber(4)">4</button>
+    <button class="key" onclick="inputNumber(5)">5</button>
+    <button class="key" onclick="inputNumber(6)">6</button>
+    <button class="key small" onclick="undo()">↶<br>เลิกทำ</button>
+  </div>
+
+  <button class="result" onclick="checkResult()">ดูผลลัพธ์</button>
+  <div class="message" id="message"></div>
+</div>
 
 <script>
+const solution = [
+  6,1,2,3,4,5,
+  3,4,5,1,6,2,
+  2,5,6,4,1,3,
+  1,3,4,5,2,6,
+  4,2,3,6,5,1,
+  5,6,1,2,3,4
+];
+
+const puzzle = [
+  0,1,2,3,0,0,
+  0,4,0,0,0,0,
+  0,5,0,0,0,0,
+  0,0,0,0,2,0,
+  0,0,0,0,5,0,
+  0,0,1,2,3,0
+];
+
+let board = [...puzzle];
 let selected = null;
+let history = [];
+let seconds = 0;
 
-const grid = document.getElementById("grid");
+function renderBoard() {
+  const el = document.getElementById("board");
+  el.innerHTML = "";
 
-// create grid
-for (let i = 0; i < 36; i++) {
-  const cell = document.createElement("div");
-  cell.className = "cell";
+  board.forEach((value, index) => {
+    const cell = document.createElement("div");
+    cell.className = "cell";
+    cell.dataset.index = index;
 
-  cell.onclick = () => {
-    selected = cell;
-    document.querySelectorAll(".cell").forEach(c => c.style.background="white");
-    cell.style.background = "#ddd";
-  };
+    if (value) cell.textContent = value;
 
-  grid.appendChild(cell);
+    if (puzzle[index] !== 0) {
+      cell.classList.add("given");
+    } else {
+      cell.classList.add("user");
+      cell.onclick = () => selectCell(index);
+    }
+
+    el.appendChild(cell);
+  });
 }
 
-// number pad
-const pad = document.getElementById("pad");
-for (let i = 1; i <= 6; i++) {
-  const btn = document.createElement("button");
-  btn.innerText = i;
-
-  btn.onclick = () => {
-    if (selected) selected.innerText = i;
-  };
-
-  pad.appendChild(btn);
+function selectCell(index) {
+  selected = index;
+  highlight();
 }
+
+function highlight() {
+  const cells = document.querySelectorAll(".cell");
+  cells.forEach(c => c.classList.remove("selected", "same"));
+
+  if (selected === null) return;
+
+  const row = Math.floor(selected / 6);
+  const col = selected % 6;
+  const value = board[selected];
+
+  cells.forEach((cell, i) => {
+    const r = Math.floor(i / 6);
+    const c = i % 6;
+
+    if (r === row || c === col) cell.classList.add("same");
+    if (value && board[i] === value) cell.classList.add("same");
+  });
+
+  cells[selected].classList.add("selected");
+}
+
+function inputNumber(num) {
+  if (selected === null || puzzle[selected] !== 0) return;
+
+  history.push([...board]);
+  board[selected] = num;
+  renderBoard();
+  checkErrors();
+  highlight();
+}
+
+function deleteNumber() {
+  if (selected === null || puzzle[selected] !== 0) return;
+
+  history.push([...board]);
+  board[selected] = 0;
+  renderBoard();
+  highlight();
+}
+
+function undo() {
+  if (history.length === 0) return;
+
+  board = history.pop();
+  renderBoard();
+  checkErrors();
+  highlight();
+}
+
+function resetGame() {
+  board = [...puzzle];
+  selected = null;
+  history = [];
+  seconds = 0;
+  document.getElementById("message").textContent = "";
+  renderBoard();
+}
+
+function checkErrors() {
+  const cells = document.querySelectorAll(".cell");
+  cells.forEach(c => c.classList.remove("error"));
+
+  board.forEach((value, i) => {
+    if (!value) return;
+    if (value !== solution[i]) {
+      cells[i].classList.add("error");
+    }
+  });
+}
+
+function checkResult() {
+  const msg = document.getElementById("message");
+
+  if (board.includes(0)) {
+    msg.textContent = "ยังมีช่องว่างอยู่";
+    msg.style.color = "#999";
+    return;
+  }
+
+  const correct = board.every((v, i) => v === solution[i]);
+
+  if (correct) {
+    msg.textContent = "ถูกต้อง 🎉";
+    msg.style.color = "green";
+  } else {
+    msg.textContent = "ยังมีคำตอบผิดอยู่";
+    msg.style.color = "red";
+    checkErrors();
+  }
+}
+
+setInterval(() => {
+  seconds++;
+  const m = Math.floor(seconds / 60);
+  const s = seconds % 60;
+  document.getElementById("timer").textContent = `${m}:${String(s).padStart(2, "0")}`;
+}, 1000);
+
+renderBoard();
 </script>
-
 </body>
 </html>
