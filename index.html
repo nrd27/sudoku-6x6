@@ -14,7 +14,9 @@ body{margin:0;background:#f3f2ee;font-family:-apple-system,BlinkMacSystemFont,"S
 .topbar{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px}
 .pill{height:46px;border-radius:18px;background:#fff;border:1px solid #e2ddd4;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800}
 
-.board-card{background:#fff;border:1px solid #e2ddd4;border-radius:24px;padding:14px}
+.board-card{position:relative;background:#fff;border:1px solid #e2ddd4;border-radius:24px;padding:14px;transition:box-shadow .25s ease}
+
+.board-card.win .board{opacity:.22;filter:blur(.5px)}
 
 .win-glow{animation:winGlow 1s ease-in-out infinite}
 @keyframes winGlow{
@@ -31,6 +33,7 @@ body{margin:0;background:#f3f2ee;font-family:-apple-system,BlinkMacSystemFont,"S
   border-radius:14px;
   overflow:hidden;
   background:#fffdf9;
+  transition:opacity .25s ease, filter .25s ease;
 }
 
 .cell{
@@ -65,7 +68,34 @@ body{margin:0;background:#f3f2ee;font-family:-apple-system,BlinkMacSystemFont,"S
   100%{background:#fffdf9}
 }
 
-/* Keypad moved up */
+.win-overlay{
+  position:absolute;
+  inset:14px;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  pointer-events:none;
+}
+
+.win-card{
+  width:82%;
+  padding:18px 16px;
+  border-radius:24px;
+  background:rgba(255,255,255,.96);
+  border:1px solid #bfe8c7;
+  color:#16834a;
+  font-size:18px;
+  font-weight:900;
+  text-align:center;
+  box-shadow:0 16px 34px rgba(24,160,88,.18);
+  animation:winPop .28s ease;
+}
+
+@keyframes winPop{
+  from{opacity:0;transform:translateY(10px) scale(.96)}
+  to{opacity:1;transform:translateY(0) scale(1)}
+}
+
 .keypad{
   display:grid;
   grid-template-columns:repeat(4,1fr);
@@ -90,23 +120,23 @@ button:active,.pill:active,.tool:active{
 
 .small{font-size:16px;color:#555}
 
-/* Hint / Reset moved below keypad */
 .tools{
   display:grid;
   grid-template-columns:1fr 1fr;
-  gap:12px;
-  margin-top:14px;
+  gap:14px;
+  margin:22px 44px 0;
+  padding-top:6px;
 }
 
 .tool{
-  height:48px;
-  border-radius:18px;
+  height:40px;
+  border-radius:16px;
   background:#ede9df;
-  color:#555;
+  color:#666;
   display:flex;
   align-items:center;
   justify-content:center;
-  font-size:18px;
+  font-size:15px;
   font-weight:850;
   transition:transform .12s ease, background .12s ease, box-shadow .12s ease, opacity .12s ease;
 }
@@ -126,29 +156,7 @@ button:active,.pill:active,.tool:active{
   100%{transform:scale(1)}
 }
 
-/* Win announcement */
-.msg{
-  min-height:0;
-}
-
-.win-message{
-  margin-top:14px;
-  padding:14px 16px;
-  border-radius:20px;
-  background:#ffffff;
-  border:1px solid #bfe8c7;
-  color:#16834a;
-  font-size:17px;
-  font-weight:900;
-  text-align:center;
-  box-shadow:0 8px 22px rgba(24,160,88,.12);
-  animation:winMsg .28s ease;
-}
-
-@keyframes winMsg{
-  from{opacity:0;transform:translateY(8px)}
-  to{opacity:1;transform:translateY(0)}
-}
+.msg{display:none}
 </style>
 </head>
 
@@ -164,6 +172,9 @@ button:active,.pill:active,.tool:active{
 
   <div class="board-card" id="boardCard">
     <div class="board" id="board"></div>
+    <div class="win-overlay" id="winOverlay">
+      <div class="win-card" id="winText"></div>
+    </div>
   </div>
 
   <div class="keypad">
@@ -206,6 +217,8 @@ const msg = document.getElementById("msg");
 const boardCard = document.getElementById("boardCard");
 const hintBtn = document.getElementById("hintBtn");
 const resetBtn = document.getElementById("resetBtn");
+const winOverlay = document.getElementById("winOverlay");
+const winText = document.getElementById("winText");
 
 function vibrate(pattern=15){
   if(navigator.vibrate) navigator.vibrate(pattern);
@@ -378,7 +391,9 @@ function newGame(){
   finished=false;
   msg.innerHTML="";
   timerEl.textContent="0:00";
-  boardCard.classList.remove("win-glow");
+  boardCard.classList.remove("win-glow","win");
+  winOverlay.style.display="none";
+  winText.innerHTML="";
   resetHintCooldown();
 
   clearInterval(timer);
@@ -467,7 +482,9 @@ function resetBoard(){
   hintUsed=0;
   msg.innerHTML="";
   finished=false;
-  boardCard.classList.remove("win-glow");
+  boardCard.classList.remove("win-glow","win");
+  winOverlay.style.display="none";
+  winText.innerHTML="";
   resetHintCooldown();
   render();
   vibrate(20);
@@ -615,9 +632,10 @@ function checkWin(){
       ? "ชนะโดยไม่ใช้ Hint เลย"
       : `ชนะแล้ว ใช้ Hint ${hintUsed} ครั้ง`;
 
-    msg.innerHTML = `<div class="win-message">🎉 ${text}</div>`;
+    winText.innerHTML = `🎉<br>${text}`;
+    winOverlay.style.display="flex";
 
-    boardCard.classList.add("win-glow");
+    boardCard.classList.add("win-glow","win");
     vibrate([40,40,80]);
   }
 }
