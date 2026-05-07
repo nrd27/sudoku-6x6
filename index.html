@@ -8,7 +8,7 @@
 <style>
 *{
 box-sizing:border-box;
--webkit-tap-highlight-color:transparent
+-webkit-tap-highlight-color:transparent;
 }
 
 :root{
@@ -21,35 +21,35 @@ box-sizing:border-box;
 --soft:#ece7de;
 --softText:#666;
 --blue:#0a84ff;
---grid:#3c3c3c;
---line:#8a8a8a;
+--grid:#3d3d3d;
+--line:#8f8f8f;
 --cell:#fffdfa;
 --selected:#dcebff;
---selectedLine:#6ab0ff;
+--selectedLine:#66b0ff;
 --related:#f2f7fb;
---green:#1ea85d;
---greenBg:#dcf7e7;
+--green:#1fa85c;
+--greenBg:#dff8e7;
 --danger:#ff4d4f;
 }
 
 html[data-theme="dark"]{
---bg:#0f0f10;
---app:#151516;
---card:#1f1f21;
---border:#343438;
+--bg:#0f1011;
+--app:#151617;
+--card:#1d1f21;
+--border:#34363a;
 --text:#f5f5f5;
---muted:#9d9d9d;
---soft:#2a2a2d;
+--muted:#8f8f94;
+--soft:#2b2d30;
 --softText:#d0d0d0;
 --blue:#5ab0ff;
---grid:#5f5f5f;
---line:#474747;
---cell:#1d1d1f;
---selected:#1a4976;
---selectedLine:#69bbff;
---related:#243248;
---green:#6cffaa;
---greenBg:#1d6039;
+--grid:#5d5f63;
+--line:#4a4c50;
+--cell:#202224;
+--selected:#1d4c79;
+--selectedLine:#6ab8ff;
+--related:#263548;
+--green:#79ffae;
+--greenBg:#1f6a42;
 --danger:#ff6b6b;
 }
 
@@ -64,10 +64,7 @@ color:var(--text);
 max-width:430px;
 margin:auto;
 min-height:100svh;
-padding:
-max(16px,env(safe-area-inset-top))
-16px
-max(16px,env(safe-area-inset-bottom));
+padding:max(16px,env(safe-area-inset-top)) 16px max(16px,env(safe-area-inset-bottom));
 background:var(--app);
 position:relative;
 }
@@ -89,8 +86,8 @@ letter-spacing:-1px;
 .settingsBtn{
 position:absolute;
 right:0;
-width:42px;
-height:42px;
+width:44px;
+height:44px;
 border-radius:14px;
 border:1px solid var(--border);
 background:var(--card);
@@ -98,33 +95,32 @@ display:flex;
 align-items:center;
 justify-content:center;
 font-size:20px;
-color:var(--text);
 }
 
 .settingsBtn:active{
-transform:scale(.95)
+transform:scale(.95);
 }
 
 .settingsMenu{
 position:absolute;
 right:16px;
 top:74px;
-width:190px;
+width:200px;
 background:var(--card);
 border:1px solid var(--border);
 border-radius:18px;
 padding:8px;
 display:none;
-z-index:50;
-box-shadow:0 20px 50px rgba(0,0,0,.18);
+z-index:99;
+box-shadow:0 20px 50px rgba(0,0,0,.2);
 }
 
 .settingsMenu.show{
-display:block
+display:block;
 }
 
 .menuItem{
-height:44px;
+height:46px;
 display:flex;
 align-items:center;
 padding:0 14px;
@@ -134,7 +130,7 @@ font-weight:800;
 }
 
 .menuItem:active{
-background:var(--soft)
+background:var(--soft);
 }
 
 .topbar{
@@ -145,19 +141,19 @@ margin-bottom:14px;
 }
 
 .pill{
-height:48px;
+height:50px;
 border-radius:18px;
 background:var(--card);
 border:1px solid var(--border);
 display:flex;
 align-items:center;
 justify-content:center;
-font-size:19px;
+font-size:18px;
 font-weight:850;
 }
 
 .pill:active{
-transform:scale(.98)
+transform:scale(.98);
 }
 
 .boardWrap{
@@ -177,14 +173,14 @@ display:grid;
 grid-template-columns:repeat(6,1fr);
 aspect-ratio:1;
 border:4px solid var(--grid);
-border-radius:16px;
+border-radius:18px;
 overflow:hidden;
 background:var(--cell);
 transition:.25s;
 }
 
 .board.finished{
-opacity:.18;
+opacity:.16;
 filter:blur(1px);
 }
 
@@ -198,7 +194,7 @@ font-weight:900;
 color:var(--text);
 border-right:1px solid var(--line);
 border-bottom:1px solid var(--line);
-transition:.14s;
+transition:.15s;
 user-select:none;
 }
 
@@ -234,7 +230,7 @@ box-shadow:inset 0 0 0 3px var(--selectedLine);
 
 .completed{
 background:var(--greenBg)!important;
-color:var(--green);
+color:var(--green)!important;
 }
 
 .conflict{
@@ -266,7 +262,7 @@ transition:.12s;
 }
 
 button:active{
-transform:scale(.96)
+transform:scale(.96);
 }
 
 .small{
@@ -282,7 +278,7 @@ margin:24px 48px 0;
 }
 
 .tool{
-height:42px;
+height:44px;
 border-radius:16px;
 background:var(--soft);
 display:flex;
@@ -295,7 +291,8 @@ transition:.14s;
 }
 
 .tool:active{
-transform:scale(.95)
+transform:scale(.95);
+filter:brightness(.96);
 }
 
 .winOverlay{
@@ -305,28 +302,28 @@ display:none;
 align-items:center;
 justify-content:center;
 padding:28px;
-pointer-events:none;
+z-index:20;
 }
 
 .winBox{
 width:100%;
 background:var(--card);
-border:1px solid rgba(30,168,93,.35);
+border:1px solid rgba(31,168,92,.35);
 border-radius:24px;
 padding:24px 18px;
 text-align:center;
-box-shadow:0 24px 60px rgba(0,0,0,.22);
+box-shadow:0 20px 60px rgba(0,0,0,.22);
 animation:pop .28s ease;
 }
 
 @keyframes pop{
 from{
 opacity:0;
-transform:translateY(10px) scale(.95)
+transform:translateY(10px) scale(.96);
 }
 to{
 opacity:1;
-transform:translateY(0) scale(1)
+transform:translateY(0) scale(1);
 }
 }
 
@@ -348,9 +345,15 @@ animation:glow 1s infinite;
 }
 
 @keyframes glow{
-0%{box-shadow:0 0 0 0 rgba(30,168,93,.15)}
-50%{box-shadow:0 0 0 8px rgba(30,168,93,.35)}
-100%{box-shadow:0 0 0 0 rgba(30,168,93,.15)}
+0%{
+box-shadow:0 0 0 0 rgba(31,168,92,.1);
+}
+50%{
+box-shadow:0 0 0 8px rgba(31,168,92,.35);
+}
+100%{
+box-shadow:0 0 0 0 rgba(31,168,92,.1);
+}
 }
 
 .donationOverlay{
@@ -361,7 +364,7 @@ display:none;
 align-items:center;
 justify-content:center;
 padding:24px;
-z-index:100;
+z-index:200;
 }
 
 .donationCard{
@@ -382,7 +385,6 @@ font-size:24px;
 .donationCard img{
 width:100%;
 border-radius:18px;
-background:#fff;
 }
 
 .closeBtn{
@@ -394,21 +396,23 @@ color:var(--text);
 }
 
 @media(max-height:760px){
+
 .title{
-font-size:28px
+font-size:30px;
 }
 
 button{
-height:52px
+height:54px;
 }
 
 .cell{
-font-size:clamp(22px,7vw,34px)
+font-size:clamp(22px,7vw,34px);
 }
 
 .tools{
-margin:18px 60px 0
+margin:18px 60px 0;
 }
+
 }
 </style>
 </head>
@@ -510,6 +514,7 @@ return a;
 }
 
 function generateSolution(){
+
 const base=[
 [1,2,3,4,5,6],
 [4,5,6,1,2,3],
@@ -541,9 +546,11 @@ map[n]=nums[i];
 });
 
 return rows.flatMap(r=>cols.map(c=>map[base[r][c]]));
+
 }
 
 function isValid(grid,index,num){
+
 const row=Math.floor(index/6);
 const col=index%6;
 
@@ -569,6 +576,7 @@ return true;
 }
 
 function countSolutions(grid){
+
 const empty=grid.indexOf(0);
 
 if(empty===-1)return 1;
@@ -576,34 +584,47 @@ if(empty===-1)return 1;
 let count=0;
 
 for(const n of shuffle([1,2,3,4,5,6])){
+
 if(isValid(grid,empty,n)){
+
 grid[empty]=n;
+
 count+=countSolutions(grid);
+
 grid[empty]=0;
+
 if(count>1)return count;
+
 }
+
 }
 
 return count;
 }
 
 function hasBalancedClues(p){
+
 for(let r=0;r<6;r++){
-let c=0;
-for(let i=0;i<6;i++)if(p[r*6+i])c++;
-if(c===0)return false;
+let count=0;
+for(let c=0;c<6;c++){
+if(p[r*6+c])count++;
+}
+if(count===0)return false;
 }
 
 for(let c=0;c<6;c++){
-let n=0;
-for(let r=0;r<6;r++)if(p[r*6+c])n++;
-if(n===0)return false;
+let count=0;
+for(let r=0;r<6;r++){
+if(p[r*6+c])count++;
+}
+if(count===0)return false;
 }
 
 return true;
 }
 
 function generatePuzzle(){
+
 const sol=generateSolution();
 const p=[...sol];
 
@@ -611,16 +632,21 @@ const cells=shuffle([...Array(36).keys()]);
 const target=9;
 
 for(const i of cells){
+
 const keep=p[i];
+
 p[i]=0;
 
 const clues=p.filter(v=>v!==0).length;
+
 const unique=countSolutions([...p])===1;
+
 const balanced=hasBalancedClues(p);
 
 if(!unique||clues<target||!balanced){
 p[i]=keep;
 }
+
 }
 
 return{p,s:sol};
@@ -644,22 +670,31 @@ hintUsed=0;
 clearInterval(timer);
 
 timer=setInterval(()=>{
+
 if(finished)return;
+
 seconds++;
+
 const m=Math.floor(seconds/60);
 const s=seconds%60;
+
 timerEl.textContent=`${m}:${String(s).padStart(2,"0")}`;
+
 },1000);
 
 timerEl.textContent="0:00";
 
 winOverlay.style.display="none";
+
 boardEl.classList.remove("finished");
+
 boardCard.classList.remove("winGlow");
 
 resetHintCooldown();
 
 render();
+
+vibrate(10);
 }
 
 function render(){
@@ -674,7 +709,9 @@ cell.className="cell";
 
 if(value)cell.textContent=value;
 
-if(puzzle.p[index])cell.classList.add("given");
+if(puzzle.p[index]){
+cell.classList.add("given");
+}
 
 cell.onclick=()=>{
 selected=index;
@@ -706,7 +743,11 @@ cells.forEach((cell,i)=>{
 const r=Math.floor(i/6);
 const c=i%6;
 
-if(r===row||c===col||(value&&board[i]===value)){
+if(
+r===row||
+c===col||
+(value&&board[i]===value)
+){
 cell.classList.add("related");
 }
 
@@ -721,36 +762,82 @@ const cells=document.querySelectorAll(".cell");
 
 cells.forEach(c=>c.classList.remove("completed"));
 
+// Row
 for(let r=0;r<6;r++){
 
 let ok=true;
 
 for(let c=0;c<6;c++){
+
 const i=r*6+c;
+
 if(board[i]!==solution[i])ok=false;
+
 }
 
 if(ok){
+
 for(let c=0;c<6;c++){
 cells[r*6+c].classList.add("completed");
 }
-}
 
 }
 
+}
+
+// Column
 for(let c=0;c<6;c++){
 
 let ok=true;
 
 for(let r=0;r<6;r++){
+
 const i=r*6+c;
+
 if(board[i]!==solution[i])ok=false;
+
 }
 
 if(ok){
+
 for(let r=0;r<6;r++){
 cells[r*6+c].classList.add("completed");
 }
+
+}
+
+}
+
+// Block
+for(let br=0;br<3;br++){
+
+for(let bc=0;bc<2;bc++){
+
+let ok=true;
+let block=[];
+
+for(let r=0;r<2;r++){
+
+for(let c=0;c<3;c++){
+
+const i=(br*2+r)*6+(bc*3+c);
+
+block.push(i);
+
+if(board[i]!==solution[i])ok=false;
+
+}
+
+}
+
+if(ok){
+
+block.forEach(i=>{
+cells[i].classList.add("completed");
+});
+
+}
+
 }
 
 }
@@ -772,7 +859,7 @@ render();
 if(isConflict(selected)){
 vibrate([40,40,40]);
 }else{
-vibrate(10);
+vibrate(12);
 }
 
 checkWin();
@@ -808,19 +895,21 @@ board=[...puzzle.p];
 
 selected=null;
 history=[];
-conflictFocus=null;
 finished=false;
+conflictFocus=null;
 hintUsed=0;
+
+winOverlay.style.display="none";
+
+boardEl.classList.remove("finished");
+
+boardCard.classList.remove("winGlow");
 
 resetHintCooldown();
 
-winOverlay.style.display="none";
-boardEl.classList.remove("finished");
-boardCard.classList.remove("winGlow");
-
 render();
 
-vibrate(25);
+vibrate(20);
 }
 
 function hint(){
@@ -847,7 +936,7 @@ render();
 
 checkWin();
 
-vibrate(30);
+vibrate(25);
 
 startHintCooldown();
 }
@@ -855,9 +944,11 @@ startHintCooldown();
 function startHintCooldown(){
 
 hintCooldown=true;
+
 hintLeft=5;
 
 hintBtn.style.opacity=".55";
+
 hintBtn.textContent=`💡 ${hintLeft}s`;
 
 clearInterval(hintTimer);
@@ -877,7 +968,6 @@ resetHintCooldown();
 }
 
 },1000);
-
 }
 
 function resetHintCooldown(){
@@ -887,6 +977,7 @@ clearInterval(hintTimer);
 hintCooldown=false;
 
 hintBtn.style.opacity="1";
+
 hintBtn.textContent="💡 Hint";
 }
 
@@ -900,13 +991,19 @@ const row=Math.floor(index/6);
 const col=index%6;
 
 for(let c=0;c<6;c++){
+
 const i=row*6+c;
+
 if(i!==index&&board[i]===value)return true;
+
 }
 
 for(let r=0;r<6;r++){
+
 const i=r*6+col;
+
 if(i!==index&&board[i]===value)return true;
+
 }
 
 return false;
@@ -921,9 +1018,13 @@ cells.forEach(c=>c.classList.remove("conflict"));
 if(conflictFocus===null)return;
 
 if(isConflict(conflictFocus)){
+
 cells[conflictFocus].classList.add("conflict");
+
 }else{
+
 conflictFocus=null;
+
 }
 
 }
@@ -940,26 +1041,27 @@ boardEl.classList.add("finished");
 
 boardCard.classList.add("winGlow");
 
-const hintText=hintUsed===0
-?"เล่นจบโดยไม่ใช้ Hint เลย 👏"
+const hintText=
+hintUsed===0
+?"เล่นจบโดยไม่ใช้ Hint 👏"
 :`ใช้ Hint ไป ${hintUsed} ครั้ง`;
 
 winText.innerHTML=`
 <div>⏱ ใช้เวลา ${timerEl.textContent}</div>
-<div style="margin-top:6px">${hintText}</div>
+<div style="margin-top:8px">${hintText}</div>
 `;
 
 winOverlay.style.display="flex";
 
-vibrate([60,40,80]);
+vibrate([60,40,90]);
+
 }
+
 }
 
 function toggleMenu(){
 document.getElementById("menu").classList.toggle("show");
 }
-
-/* AUTO DARK MODE SYSTEM */
 
 let themeMode="auto";
 
@@ -969,7 +1071,8 @@ let activeTheme;
 
 if(themeMode==="auto"){
 
-activeTheme=window.matchMedia("(prefers-color-scheme: dark)").matches
+activeTheme=
+window.matchMedia("(prefers-color-scheme: dark)").matches
 ?"dark"
 :"light";
 
@@ -1010,21 +1113,26 @@ applyTheme();
 });
 
 function openDonation(){
+
 document.getElementById("menu").classList.remove("show");
-donationOverlay.style.display="flex";
+
+document.getElementById("donationOverlay").style.display="flex";
 }
 
 function hideDonation(){
-donationOverlay.style.display="none";
+document.getElementById("donationOverlay").style.display="none";
 }
 
 function closeDonation(e){
-if(e.target===donationOverlay){
+
+if(e.target.id==="donationOverlay"){
 hideDonation();
 }
+
 }
 
 applyTheme();
+
 newGame();
 </script>
 
