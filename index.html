@@ -1,334 +1,1033 @@
 <!DOCTYPE html>
-<html>
+<html lang="th">
 <head>
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Mini Sudoku</title>
 
 <style>
-*{box-sizing:border-box}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 
 :root{
-  --page:#f3f2ee;--app:#faf9f6;--card:#fff;--border:#e2ddd4;
-  --text:#111;--muted:#a7a7a7;--soft:#ede9df;--softText:#666;
-  --grid:#333;--line:#777;--cell:#fffdf9;--related:#f2f7fb;
-  --selected:#dcecff;--selectedLine:#7db8f5;--complete:#dcf7d9;
-  --green:#18a058;--redSoft:#ffe3e3;--blue:#0a84ff;
+--bg:#f3f2ee;
+--app:#faf9f6;
+--card:#ffffff;
+--border:#e5dfd5;
+--text:#111111;
+--muted:#aaaaaa;
+--soft:#ece7de;
+--softText:#666;
+--blue:#0a84ff;
+--grid:#3c3c3c;
+--line:#8a8a8a;
+--cell:#fffdfa;
+--selected:#dcebff;
+--selectedLine:#6ab0ff;
+--related:#f2f7fb;
+--green:#1ea85d;
+--greenBg:#dcf7e7;
+--danger:#ff4d4f;
 }
 
 html[data-theme="dark"]{
-  --page:#0f0f0f;--app:#151515;--card:#202020;--border:#373737;
-  --text:#f5f5f5;--muted:#8e8e8e;--soft:#2b2b2b;--softText:#d5d5d5;
-  --grid:#5b5b5b;--line:#4a4a4a;--cell:#1f1f1f;--related:#253247;
-  --selected:#174a7a;--selectedLine:#61b3ff;--complete:#2f7d46;
-  --green:#66e08d;--redSoft:#5a2424;--blue:#58a6ff;
+--bg:#0f0f10;
+--app:#151516;
+--card:#1f1f21;
+--border:#343438;
+--text:#f5f5f5;
+--muted:#8e8e93;
+--soft:#2a2a2d;
+--softText:#d0d0d0;
+--blue:#4ea1ff;
+--grid:#595959;
+--line:#4a4a4a;
+--cell:#1d1d1f;
+--selected:#17426e;
+--selectedLine:#5eb0ff;
+--related:#243248;
+--green:#64f59d;
+--greenBg:#185a34;
+--danger:#ff5d5d;
 }
 
-body{margin:0;background:var(--page);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;color:var(--text)}
-.app{max-width:430px;min-height:100svh;margin:auto;padding:max(14px,env(safe-area-inset-top)) 16px max(14px,env(safe-area-inset-bottom));background:var(--app);position:relative}
+body{
+margin:0;
+background:var(--bg);
+font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;
+color:var(--text);
+}
 
-.headerRow{position:relative;display:flex;align-items:center;justify-content:center;margin:8px 0 16px}
-.header{font-size:30px;font-weight:900;letter-spacing:-.8px}
-.settingsBtn{position:absolute;right:0;width:40px;height:40px;border-radius:14px;background:var(--card);border:1px solid var(--border);color:var(--text);display:flex;align-items:center;justify-content:center;font-size:20px}
+.app{
+max-width:430px;
+margin:auto;
+min-height:100svh;
+padding:
+max(16px,env(safe-area-inset-top))
+16px
+max(16px,env(safe-area-inset-bottom));
+background:var(--app);
+position:relative;
+}
 
-.settingsMenu{position:absolute;top:54px;right:16px;z-index:30;width:190px;background:var(--card);border:1px solid var(--border);border-radius:18px;padding:8px;box-shadow:0 18px 40px rgba(0,0,0,.18);display:none}
+.headerRow{
+display:flex;
+align-items:center;
+justify-content:center;
+position:relative;
+margin:8px 0 16px;
+}
+
+.title{
+font-size:34px;
+font-weight:900;
+letter-spacing:-1px;
+}
+
+.settingsBtn{
+position:absolute;
+right:0;
+width:42px;
+height:42px;
+border-radius:14px;
+border:1px solid var(--border);
+background:var(--card);
+display:flex;
+align-items:center;
+justify-content:center;
+font-size:20px;
+color:var(--text);
+}
+
+.settingsBtn:active{transform:scale(.95)}
+
+.settingsMenu{
+position:absolute;
+right:16px;
+top:74px;
+width:190px;
+background:var(--card);
+border:1px solid var(--border);
+border-radius:18px;
+padding:8px;
+display:none;
+z-index:50;
+box-shadow:0 20px 50px rgba(0,0,0,.18);
+}
+
 .settingsMenu.show{display:block}
-.menuItem{height:42px;border-radius:12px;display:flex;align-items:center;padding:0 12px;font-size:15px;font-weight:800;color:var(--text)}
-.menuItem:active{background:var(--soft)}
 
-.topbar{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px}
-.pill{height:46px;border-radius:18px;background:var(--card);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800;color:var(--text)}
-
-.board-card{position:relative;background:var(--card);border:1px solid var(--border);border-radius:24px;padding:14px;transition:.25s}
-.board-card.win .board{opacity:.22;filter:blur(.5px)}
-.win-glow{animation:winGlow 1s ease-in-out infinite}
-@keyframes winGlow{
-  0%{box-shadow:0 0 0 0 rgba(24,160,88,.12);border-color:var(--border)}
-  50%{box-shadow:0 0 0 7px rgba(24,160,88,.28);border-color:var(--green)}
-  100%{box-shadow:0 0 0 0 rgba(24,160,88,.12);border-color:var(--border)}
+.menuItem{
+height:44px;
+display:flex;
+align-items:center;
+padding:0 14px;
+border-radius:12px;
+font-size:15px;
+font-weight:800;
 }
 
-.board{display:grid;grid-template-columns:repeat(6,1fr);aspect-ratio:1;border:4px solid var(--grid);border-radius:14px;overflow:hidden;background:var(--cell);transition:.25s}
-.cell{display:flex;align-items:center;justify-content:center;background:var(--cell);font-size:clamp(26px,8vw,38px);font-weight:900;color:var(--text);border-right:1px solid var(--line);border-bottom:1px solid var(--line);user-select:none;transition:.15s}
-.cell:nth-child(6n){border-right:none}
-.cell:nth-child(n+31){border-bottom:none}
-.cell:nth-child(6n+4){border-left:5px solid var(--grid)}
-.cell:nth-child(n+13):nth-child(-n+18),.cell:nth-child(n+25):nth-child(-n+30){border-top:5px solid var(--grid)}
-.given{color:var(--muted)}
-.related{background:var(--related)}
-.selected{background:var(--selected)!important;box-shadow:inset 0 0 0 3px var(--selectedLine)}
-.completed{background:var(--complete)!important}
-.blink-error{animation:error .6s ease infinite}
-@keyframes error{0%{background:var(--cell)}50%{background:var(--redSoft);box-shadow:inset 0 0 0 3px rgba(229,57,53,.55)}100%{background:var(--cell)}}
+.menuItem:active{
+background:var(--soft);
+}
 
-.win-overlay{position:absolute;inset:14px;display:none;align-items:center;justify-content:center;pointer-events:none}
-.win-card{width:82%;padding:18px 16px;border-radius:24px;background:var(--card);border:1px solid rgba(24,160,88,.35);color:var(--green);font-size:18px;font-weight:900;text-align:center;box-shadow:0 16px 34px rgba(24,160,88,.18);animation:winPop .28s ease}
-@keyframes winPop{from{opacity:0;transform:translateY(10px) scale(.96)}to{opacity:1;transform:translateY(0) scale(1)}}
+.topbar{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:12px;
+margin-bottom:14px;
+}
 
-.keypad{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:14px}
-button{height:56px;border-radius:18px;border:1px solid var(--border);background:var(--card);color:var(--blue);font-size:28px;font-weight:900;transition:.12s}
-button:active,.pill:active,.tool:active,.settingsBtn:active{transform:scale(.96)}
-.small{font-size:16px;color:var(--softText)}
+.pill{
+height:48px;
+border-radius:18px;
+background:var(--card);
+border:1px solid var(--border);
+display:flex;
+align-items:center;
+justify-content:center;
+font-size:19px;
+font-weight:850;
+}
 
-.tools{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:22px 44px 0;padding-top:6px}
-.tool{height:40px;border-radius:16px;background:var(--soft);color:var(--softText);display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:850;transition:.12s}
-.tool.pressed{animation:toolPress .22s ease}
-@keyframes toolPress{0%{transform:scale(1)}50%{transform:scale(.94)}100%{transform:scale(1)}}
+.pill:active{transform:scale(.98)}
 
-.donationOverlay{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;align-items:center;justify-content:center;z-index:50;padding:24px}
-.donationCard{width:100%;max-width:360px;background:var(--card);border:1px solid var(--border);border-radius:24px;padding:18px;text-align:center;box-shadow:0 20px 50px rgba(0,0,0,.25)}
-.donationCard h3{margin:0 0 12px;font-size:22px}
-.donationCard img{width:100%;border-radius:14px;background:#fff}
-.closeDonation{margin-top:14px;height:44px;border-radius:14px;font-size:16px;color:var(--text)}
+.boardWrap{
+position:relative;
+}
 
-.msg{display:none}
+.boardCard{
+background:var(--card);
+border:1px solid var(--border);
+border-radius:26px;
+padding:14px;
+transition:.25s;
+}
+
+.boardCard.win{
+opacity:.9;
+}
+
+.board{
+display:grid;
+grid-template-columns:repeat(6,1fr);
+aspect-ratio:1;
+border:4px solid var(--grid);
+border-radius:16px;
+overflow:hidden;
+background:var(--cell);
+transition:.25s;
+}
+
+.board.finished{
+opacity:.18;
+filter:blur(1px);
+}
+
+.cell{
+display:flex;
+align-items:center;
+justify-content:center;
+background:var(--cell);
+font-size:clamp(26px,8vw,38px);
+font-weight:900;
+color:var(--text);
+border-right:1px solid var(--line);
+border-bottom:1px solid var(--line);
+transition:.14s;
+user-select:none;
+}
+
+.cell:nth-child(6n){
+border-right:none;
+}
+
+.cell:nth-child(n+31){
+border-bottom:none;
+}
+
+.cell:nth-child(6n+4){
+border-left:5px solid var(--grid);
+}
+
+.cell:nth-child(n+13):nth-child(-n+18),
+.cell:nth-child(n+25):nth-child(-n+30){
+border-top:5px solid var(--grid);
+}
+
+.given{
+color:var(--muted);
+}
+
+.related{
+background:var(--related);
+}
+
+.selected{
+background:var(--selected)!important;
+box-shadow:inset 0 0 0 3px var(--selectedLine);
+}
+
+.completed{
+background:var(--greenBg)!important;
+}
+
+.conflict{
+animation:conflict .7s infinite;
+}
+
+@keyframes conflict{
+0%{box-shadow:inset 0 0 0 0 rgba(255,77,79,0)}
+50%{box-shadow:inset 0 0 0 4px rgba(255,77,79,.85)}
+100%{box-shadow:inset 0 0 0 0 rgba(255,77,79,0)}
+}
+
+.keypad{
+display:grid;
+grid-template-columns:repeat(4,1fr);
+gap:10px;
+margin-top:14px;
+}
+
+button{
+height:58px;
+border-radius:18px;
+border:1px solid var(--border);
+background:var(--card);
+color:var(--blue);
+font-size:28px;
+font-weight:900;
+transition:.12s;
+}
+
+button:active{
+transform:scale(.96);
+}
+
+.small{
+font-size:16px;
+color:var(--softText);
+}
+
+.tools{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:14px;
+margin:24px 48px 0;
+}
+
+.tool{
+height:42px;
+border-radius:16px;
+background:var(--soft);
+display:flex;
+align-items:center;
+justify-content:center;
+font-size:15px;
+font-weight:850;
+color:var(--softText);
+transition:.14s;
+}
+
+.tool:active{
+transform:scale(.95);
+}
+
+.winOverlay{
+position:absolute;
+inset:0;
+display:none;
+align-items:center;
+justify-content:center;
+padding:28px;
+pointer-events:none;
+}
+
+.winBox{
+width:100%;
+background:var(--card);
+border:1px solid rgba(30,168,93,.35);
+border-radius:24px;
+padding:24px 18px;
+text-align:center;
+box-shadow:0 24px 60px rgba(0,0,0,.22);
+animation:pop .28s ease;
+}
+
+@keyframes pop{
+from{opacity:0;transform:translateY(10px) scale(.95)}
+to{opacity:1;transform:translateY(0) scale(1)}
+}
+
+.winTitle{
+font-size:28px;
+font-weight:900;
+color:var(--green);
+margin-bottom:10px;
+}
+
+.winDesc{
+font-size:17px;
+font-weight:800;
+line-height:1.5;
+}
+
+.winGlow{
+animation:glow 1s infinite;
+}
+
+@keyframes glow{
+0%{box-shadow:0 0 0 0 rgba(30,168,93,.15)}
+50%{box-shadow:0 0 0 8px rgba(30,168,93,.35)}
+100%{box-shadow:0 0 0 0 rgba(30,168,93,.15)}
+}
+
+.donationOverlay{
+position:fixed;
+inset:0;
+background:rgba(0,0,0,.6);
+display:none;
+align-items:center;
+justify-content:center;
+padding:24px;
+z-index:100;
+}
+
+.donationCard{
+width:100%;
+max-width:360px;
+background:var(--card);
+border-radius:26px;
+padding:18px;
+border:1px solid var(--border);
+text-align:center;
+}
+
+.donationCard h3{
+margin:0 0 14px;
+font-size:24px;
+}
+
+.donationCard img{
+width:100%;
+border-radius:18px;
+background:#fff;
+}
+
+.closeBtn{
+margin-top:14px;
+height:44px;
+border-radius:14px;
+font-size:16px;
+color:var(--text);
+}
 
 @media(max-height:760px){
-  .header{font-size:26px}.headerRow{margin:4px 0 10px}.topbar{margin-bottom:10px}
-  .pill{height:42px;font-size:16px}.board-card{padding:10px;border-radius:20px}
-  .cell{font-size:clamp(22px,7vw,34px)}.keypad{gap:8px;margin-top:10px}
-  button{height:50px;border-radius:15px;font-size:24px}.small{font-size:14px}
-  .tools{margin:16px 56px 0;gap:10px}.tool{height:36px;font-size:14px}
-}
-
-@media(max-height:680px){
-  .header{font-size:22px}.settingsBtn{width:36px;height:36px}
-  .pill{height:38px;font-size:15px}.board-card{padding:8px}
-  .keypad{gap:7px;margin-top:8px}button{height:44px;font-size:22px}
-  .tools{margin:12px 64px 0}.tool{height:34px;font-size:13px}
+.title{font-size:28px}
+button{height:52px}
+.cell{font-size:clamp(22px,7vw,34px)}
+.tools{margin:18px 60px 0}
 }
 </style>
 </head>
 
 <body>
+
 <div class="app">
 
-  <div class="headerRow">
-    <div class="header">Mini Sudoku</div>
-    <button class="settingsBtn" onclick="toggleSettings()">⚙</button>
-  </div>
+<div class="headerRow">
+<div class="title">Mini Sudoku</div>
 
-  <div class="settingsMenu" id="settingsMenu">
-    <div class="menuItem" id="themeToggle" onclick="toggleThemeMode()">🌙 Dark Mode</div>
-    <div class="menuItem" onclick="openDonation()">💙 Donation</div>
-  </div>
+<div class="settingsBtn" onclick="toggleMenu()">⚙️</div>
+</div>
 
-  <div class="topbar">
-    <div class="pill">⏱ <span id="timer">0:00</span></div>
-    <div class="pill" onclick="newGame()">🎲 ด่านใหม่</div>
-  </div>
+<div class="settingsMenu" id="menu">
+<div class="menuItem" onclick="toggleTheme()">🌓 Toggle Theme</div>
+<div class="menuItem" onclick="openDonation()">💙 Donation</div>
+</div>
 
-  <div class="board-card" id="boardCard">
-    <div class="board" id="board"></div>
-    <div class="win-overlay" id="winOverlay">
-      <div class="win-card" id="winText"></div>
-    </div>
-  </div>
+<div class="topbar">
+<div class="pill">⏱ <span id="timer">0:00</span></div>
+<div class="pill" onclick="newGame()">🎲 ด่านใหม่</div>
+</div>
 
-  <div class="keypad">
-    <button onclick="pressNum(1)">1</button>
-    <button onclick="pressNum(2)">2</button>
-    <button onclick="pressNum(3)">3</button>
-    <button class="small" onclick="erase()">⌫</button>
-    <button onclick="pressNum(4)">4</button>
-    <button onclick="pressNum(5)">5</button>
-    <button onclick="pressNum(6)">6</button>
-    <button class="small" onclick="undo()">↶</button>
-  </div>
+<div class="boardWrap">
 
-  <div class="tools">
-    <div class="tool" id="hintBtn" onclick="hint()">💡 Hint</div>
-    <div class="tool" id="resetBtn" onclick="resetBoard()">🔁 Reset</div>
-  </div>
+<div class="boardCard" id="boardCard">
 
-  <div class="msg" id="msg"></div>
+<div class="board" id="board"></div>
+
+</div>
+
+<div class="winOverlay" id="winOverlay">
+<div class="winBox">
+<div class="winTitle">🎉 ชนะแล้ว!</div>
+<div class="winDesc" id="winText"></div>
+</div>
+</div>
+
+</div>
+
+<div class="keypad">
+<button onclick="pressNum(1)">1</button>
+<button onclick="pressNum(2)">2</button>
+<button onclick="pressNum(3)">3</button>
+<button class="small" onclick="erase()">⌫</button>
+
+<button onclick="pressNum(4)">4</button>
+<button onclick="pressNum(5)">5</button>
+<button onclick="pressNum(6)">6</button>
+<button class="small" onclick="undo()">↶</button>
+</div>
+
+<div class="tools">
+<div class="tool" id="hintBtn" onclick="hint()">💡 Hint</div>
+<div class="tool" onclick="resetBoard()">🔁 Reset</div>
+</div>
 
 </div>
 
 <div class="donationOverlay" id="donationOverlay" onclick="closeDonation(event)">
-  <div class="donationCard">
-    <h3>Donation</h3>
-    <img src="IMG_2221.jpeg" alt="Donation QR">
-    <button class="closeDonation" onclick="hideDonation()">Close</button>
-  </div>
+<div class="donationCard">
+<h3>Donation</h3>
+<img src="IMG_2221.jpeg">
+<button class="closeBtn" onclick="hideDonation()">Close</button>
+</div>
 </div>
 
 <script>
-let puzzle, board, solution, selected=null, history=[], seconds=0, timer=null, finished=false, conflictFocus=null, hintUsed=0;
-let hintCooldown=false, hintCountdown=0, hintTimer=null;
-let themeMode=localStorage.getItem("miniSudokuTheme") || "auto";
+let puzzle,board,solution;
+let selected=null;
+let history=[];
+let seconds=0;
+let timer=null;
+let finished=false;
+let conflictFocus=null;
+let hintUsed=0;
 
-const boardEl=document.getElementById("board"), timerEl=document.getElementById("timer"), msg=document.getElementById("msg");
-const boardCard=document.getElementById("boardCard"), hintBtn=document.getElementById("hintBtn"), resetBtn=document.getElementById("resetBtn");
-const winOverlay=document.getElementById("winOverlay"), winText=document.getElementById("winText"), settingsMenu=document.getElementById("settingsMenu");
-const themeToggle=document.getElementById("themeToggle"), donationOverlay=document.getElementById("donationOverlay");
+let hintCooldown=false;
+let hintLeft=0;
+let hintTimer=null;
 
-function getSystemTheme(){return window.matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
-function applyTheme(){
-  const active=themeMode==="auto"?getSystemTheme():themeMode;
-  document.documentElement.setAttribute("data-theme",active);
-  themeToggle.textContent=active==="dark"?"☀️ Light Mode":"🌙 Dark Mode";
+const boardEl=document.getElementById("board");
+const timerEl=document.getElementById("timer");
+const boardCard=document.getElementById("boardCard");
+const winOverlay=document.getElementById("winOverlay");
+const winText=document.getElementById("winText");
+const hintBtn=document.getElementById("hintBtn");
+
+function vibrate(p=15){
+if(navigator.vibrate)navigator.vibrate(p);
 }
-function toggleThemeMode(){
-  const active=document.documentElement.getAttribute("data-theme");
-  themeMode=active==="dark"?"light":"dark";
-  localStorage.setItem("miniSudokuTheme",themeMode);
-  applyTheme();
-  settingsMenu.classList.remove("show");
+
+function shuffle(arr){
+const a=[...arr];
+for(let i=a.length-1;i>0;i--){
+const j=Math.floor(Math.random()*(i+1));
+[a[i],a[j]]=[a[j],a[i]];
 }
-function toggleSettings(){settingsMenu.classList.toggle("show")}
-function openDonation(){settingsMenu.classList.remove("show");donationOverlay.style.display="flex"}
-function hideDonation(){donationOverlay.style.display="none"}
-function closeDonation(e){if(e.target===donationOverlay)hideDonation()}
-
-window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change",()=>{if(themeMode==="auto")applyTheme()});
-document.addEventListener("click",(e)=>{if(!settingsMenu.contains(e.target)&&!e.target.classList.contains("settingsBtn"))settingsMenu.classList.remove("show")});
-
-function vibrate(p=15){if(navigator.vibrate)navigator.vibrate(p)}
-function pressEffect(el){el.classList.remove("pressed");void el.offsetWidth;el.classList.add("pressed")}
-function shuffle(arr){const a=[...arr];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+return a;
+}
 
 function generateSolution(){
-  const base=[[1,2,3,4,5,6],[4,5,6,1,2,3],[2,3,4,5,6,1],[5,6,1,2,3,4],[3,4,5,6,1,2],[6,1,2,3,4,5]];
-  let rows=[],cols=[];
-  shuffle([0,1,2]).forEach(b=>shuffle([0,1]).forEach(r=>rows.push(b*2+r)));
-  shuffle([0,1]).forEach(s=>shuffle([0,1,2]).forEach(c=>cols.push(s*3+c)));
-  const nums=shuffle([1,2,3,4,5,6]), map={};
-  [1,2,3,4,5,6].forEach((n,i)=>map[n]=nums[i]);
-  return rows.flatMap(r=>cols.map(c=>map[base[r][c]]));
+const base=[
+[1,2,3,4,5,6],
+[4,5,6,1,2,3],
+[2,3,4,5,6,1],
+[5,6,1,2,3,4],
+[3,4,5,6,1,2],
+[6,1,2,3,4,5]
+];
+
+let rows=[],cols=[];
+
+shuffle([0,1,2]).forEach(b=>{
+shuffle([0,1]).forEach(r=>{
+rows.push(b*2+r);
+});
+});
+
+shuffle([0,1]).forEach(s=>{
+shuffle([0,1,2]).forEach(c=>{
+cols.push(s*3+c);
+});
+});
+
+const nums=shuffle([1,2,3,4,5,6]);
+const map={};
+
+[1,2,3,4,5,6].forEach((n,i)=>{
+map[n]=nums[i];
+});
+
+return rows.flatMap(r=>cols.map(c=>map[base[r][c]]));
 }
 
 function isValid(grid,index,num){
-  const row=Math.floor(index/6), col=index%6;
-  for(let c=0;c<6;c++)if(c!==col&&grid[row*6+c]===num)return false;
-  for(let r=0;r<6;r++)if(r!==row&&grid[r*6+col]===num)return false;
-  const br=Math.floor(row/2)*2, bc=Math.floor(col/3)*3;
-  for(let r=0;r<2;r++)for(let c=0;c<3;c++){const i=(br+r)*6+(bc+c);if(i!==index&&grid[i]===num)return false}
-  return true;
+const row=Math.floor(index/6);
+const col=index%6;
+
+for(let c=0;c<6;c++){
+if(c!==col&&grid[row*6+c]===num)return false;
+}
+
+for(let r=0;r<6;r++){
+if(r!==row&&grid[r*6+col]===num)return false;
+}
+
+const br=Math.floor(row/2)*2;
+const bc=Math.floor(col/3)*3;
+
+for(let r=0;r<2;r++){
+for(let c=0;c<3;c++){
+const i=(br+r)*6+(bc+c);
+if(i!==index&&grid[i]===num)return false;
+}
+}
+
+return true;
 }
 
 function countSolutions(grid){
-  const empty=grid.indexOf(0);
-  if(empty===-1)return 1;
-  let count=0;
-  for(const n of shuffle([1,2,3,4,5,6])){
-    if(isValid(grid,empty,n)){
-      grid[empty]=n; count+=countSolutions(grid); grid[empty]=0;
-      if(count>1)return count;
-    }
-  }
-  return count;
+const empty=grid.indexOf(0);
+
+if(empty===-1)return 1;
+
+let count=0;
+
+for(const n of shuffle([1,2,3,4,5,6])){
+if(isValid(grid,empty,n)){
+grid[empty]=n;
+count+=countSolutions(grid);
+grid[empty]=0;
+if(count>1)return count;
+}
+}
+
+return count;
 }
 
 function hasBalancedClues(p){
-  for(let r=0;r<6;r++){let count=0;for(let c=0;c<6;c++)if(p[r*6+c])count++;if(count===0)return false}
-  for(let c=0;c<6;c++){let count=0;for(let r=0;r<6;r++)if(p[r*6+c])count++;if(count===0)return false}
-  for(let br=0;br<3;br++)for(let bc=0;bc<2;bc++){let count=0;for(let r=0;r<2;r++)for(let c=0;c<3;c++)if(p[(br*2+r)*6+(bc*3+c)])count++;if(count===0)return false}
-  return true;
+for(let r=0;r<6;r++){
+let c=0;
+for(let i=0;i<6;i++)if(p[r*6+i])c++;
+if(c===0)return false;
+}
+
+for(let c=0;c<6;c++){
+let n=0;
+for(let r=0;r<6;r++)if(p[r*6+c])n++;
+if(n===0)return false;
+}
+
+return true;
 }
 
 function generatePuzzle(){
-  const sol=generateSolution(), p=[...sol], cells=shuffle([...Array(36).keys()]), targetClues=9+Math.floor(Math.random()*2);
-  for(const i of cells){
-    const backup=p[i]; p[i]=0;
-    const cluesLeft=p.filter(v=>v!==0).length, unique=countSolutions([...p])===1, balanced=hasBalancedClues(p);
-    if(!unique||cluesLeft<targetClues||!balanced)p[i]=backup;
-  }
-  return {p,s:sol};
+const sol=generateSolution();
+const p=[...sol];
+
+const cells=shuffle([...Array(36).keys()]);
+const target=9;
+
+for(const i of cells){
+const keep=p[i];
+p[i]=0;
+
+const clues=p.filter(v=>v!==0).length;
+const unique=countSolutions([...p])===1;
+const balanced=hasBalancedClues(p);
+
+if(!unique||clues<target||!balanced){
+p[i]=keep;
+}
 }
 
-function resetHintCooldown(){
-  clearInterval(hintTimer); hintCooldown=false; hintCountdown=0; hintBtn.textContent="💡 Hint"; hintBtn.style.opacity="1";
-}
-function startHintCooldown(){
-  hintCooldown=true; hintCountdown=5; hintBtn.textContent=`💡 ${hintCountdown}s`; hintBtn.style.opacity=".55";
-  clearInterval(hintTimer);
-  hintTimer=setInterval(()=>{hintCountdown--; if(hintCountdown>0)hintBtn.textContent=`💡 ${hintCountdown}s`; else resetHintCooldown()},1000);
+return{p,s:sol};
 }
 
 function newGame(){
-  const g=generatePuzzle(); puzzle=g; board=[...g.p]; solution=[...g.s];
-  selected=null; history=[]; conflictFocus=null; hintUsed=0; seconds=0; finished=false;
-  msg.innerHTML=""; timerEl.textContent="0:00"; boardCard.classList.remove("win-glow","win"); winOverlay.style.display="none"; winText.innerHTML=""; resetHintCooldown();
-  clearInterval(timer);
-  timer=setInterval(()=>{if(finished)return;seconds++;const m=Math.floor(seconds/60),s=seconds%60;timerEl.textContent=`${m}:${String(s).padStart(2,"0")}`},1000);
-  render(); vibrate(10);
+
+const g=generatePuzzle();
+
+puzzle=g;
+board=[...g.p];
+solution=[...g.s];
+
+selected=null;
+history=[];
+seconds=0;
+finished=false;
+conflictFocus=null;
+hintUsed=0;
+
+clearInterval(timer);
+
+timer=setInterval(()=>{
+if(finished)return;
+seconds++;
+const m=Math.floor(seconds/60);
+const s=seconds%60;
+timerEl.textContent=`${m}:${String(s).padStart(2,"0")}`;
+},1000);
+
+timerEl.textContent="0:00";
+
+winOverlay.style.display="none";
+boardEl.classList.remove("finished");
+boardCard.classList.remove("winGlow");
+
+resetHintCooldown();
+
+render();
 }
 
 function render(){
-  boardEl.innerHTML="";
-  board.forEach((value,index)=>{
-    const cell=document.createElement("div"); cell.className="cell";
-    if(value)cell.textContent=value; if(puzzle.p[index])cell.classList.add("given");
-    cell.onclick=()=>{selected=index;render();vibrate(8)};
-    boardEl.appendChild(cell);
-  });
-  highlight(); markDone(); applyConflictFocus();
-}
 
-function pressNum(num){
-  if(selected===null||puzzle.p[selected]||finished)return;
-  history.push([...board]); board[selected]=num; conflictFocus=selected;
-  render(); vibrate(isCellInConflict(selected)?[35,40,35]:12); checkWin();
-}
-function erase(){
-  if(selected===null||puzzle.p[selected]||finished)return;
-  history.push([...board]); board[selected]=0; if(conflictFocus===selected)conflictFocus=null; render(); vibrate(10);
-}
-function undo(){if(!history.length||finished)return;board=history.pop();conflictFocus=null;render();vibrate(15)}
-function resetBoard(){
-  pressEffect(resetBtn); board=[...puzzle.p]; selected=null; history=[]; conflictFocus=null; hintUsed=0; msg.innerHTML=""; finished=false;
-  boardCard.classList.remove("win-glow","win"); winOverlay.style.display="none"; winText.innerHTML=""; resetHintCooldown(); render(); vibrate(20);
-}
-function hint(){
-  pressEffect(hintBtn); if(finished||hintCooldown)return;
-  const options=board.map((v,i)=>v!==solution[i]&&!puzzle.p[i]?i:null).filter(v=>v!==null);
-  if(!options.length)return;
-  history.push([...board]); const pick=options[Math.floor(Math.random()*options.length)];
-  board[pick]=solution[pick]; selected=pick; hintUsed++; if(conflictFocus===pick)conflictFocus=null;
-  render(); checkWin(); vibrate(25); startHintCooldown();
+boardEl.innerHTML="";
+
+board.forEach((value,index)=>{
+
+const cell=document.createElement("div");
+
+cell.className="cell";
+
+if(value)cell.textContent=value;
+
+if(puzzle.p[index])cell.classList.add("given");
+
+cell.onclick=()=>{
+selected=index;
+render();
+vibrate(8);
+};
+
+boardEl.appendChild(cell);
+
+});
+
+highlight();
+markDone();
+showConflict();
 }
 
 function highlight(){
-  const cells=document.querySelectorAll(".cell"); if(selected===null)return;
-  const r=Math.floor(selected/6),c=selected%6,v=board[selected];
-  cells.forEach((cell,i)=>{const rr=Math.floor(i/6),cc=i%6;if(rr===r||cc===c||(v&&board[i]===v))cell.classList.add("related")});
-  cells[selected].classList.add("selected");
+
+const cells=document.querySelectorAll(".cell");
+
+if(selected===null)return;
+
+const row=Math.floor(selected/6);
+const col=selected%6;
+const value=board[selected];
+
+cells.forEach((cell,i)=>{
+
+const r=Math.floor(i/6);
+const c=i%6;
+
+if(r===row||c===col||(value&&board[i]===value)){
+cell.classList.add("related");
+}
+
+});
+
+cells[selected].classList.add("selected");
 }
 
 function markDone(){
-  const cells=document.querySelectorAll(".cell"); cells.forEach(c=>c.classList.remove("completed"));
-  for(let r=0;r<6;r++){let ok=true;for(let c=0;c<6;c++){const i=r*6+c;if(board[i]!==solution[i])ok=false}if(ok)for(let c=0;c<6;c++)cells[r*6+c].classList.add("completed")}
-  for(let c=0;c<6;c++){let ok=true;for(let r=0;r<6;r++){const i=r*6+c;if(board[i]!==solution[i])ok=false}if(ok)for(let r=0;r<6;r++)cells[r*6+c].classList.add("completed")}
-  for(let br=0;br<3;br++)for(let bc=0;bc<2;bc++){let ok=true,block=[];for(let r=0;r<2;r++)for(let c=0;c<3;c++){const i=(br*2+r)*6+(bc*3+c);block.push(i);if(board[i]!==solution[i])ok=false}if(ok)block.forEach(i=>cells[i].classList.add("completed"))}
+
+const cells=document.querySelectorAll(".cell");
+
+cells.forEach(c=>c.classList.remove("completed"));
+
+for(let r=0;r<6;r++){
+
+let ok=true;
+
+for(let c=0;c<6;c++){
+const i=r*6+c;
+if(board[i]!==solution[i])ok=false;
 }
 
-function isCellInConflict(index){
-  const value=board[index]; if(!value)return false;
-  const row=Math.floor(index/6),col=index%6;
-  for(let c=0;c<6;c++){const i=row*6+c;if(i!==index&&board[i]===value)return true}
-  for(let r=0;r<6;r++){const i=r*6+col;if(i!==index&&board[i]===value)return true}
-  const br=Math.floor(row/2)*2,bc=Math.floor(col/3)*3;
-  for(let r=0;r<2;r++)for(let c=0;c<3;c++){const i=(br+r)*6+(bc+c);if(i!==index&&board[i]===value)return true}
-  return false;
+if(ok){
+for(let c=0;c<6;c++){
+cells[r*6+c].classList.add("completed");
+}
 }
 
-function applyConflictFocus(){
-  const cells=document.querySelectorAll(".cell");
-  if(conflictFocus===null)return;
-  if(isCellInConflict(conflictFocus))cells[conflictFocus].classList.add("blink-error"); else conflictFocus=null;
+}
+
+for(let c=0;c<6;c++){
+
+let ok=true;
+
+for(let r=0;r<6;r++){
+const i=r*6+c;
+if(board[i]!==solution[i])ok=false;
+}
+
+if(ok){
+for(let r=0;r<6;r++){
+cells[r*6+c].classList.add("completed");
+}
+}
+
+}
+
+for(let br=0;br<3;br++){
+
+for(let bc=0;bc<2;bc++){
+
+let ok=true;
+let block=[];
+
+for(let r=0;r<2;r++){
+for(let c=0;c<3;c++){
+
+const i=(br*2+r)*6+(bc*3+c);
+
+block.push(i);
+
+if(board[i]!==solution[i])ok=false;
+
+}
+}
+
+if(ok){
+block.forEach(i=>{
+cells[i].classList.add("completed");
+});
+}
+
+}
+
+}
+
+}
+
+function pressNum(num){
+
+if(selected===null||puzzle.p[selected]||finished)return;
+
+history.push([...board]);
+
+board[selected]=num;
+
+conflictFocus=selected;
+
+render();
+
+if(isConflict(selected)){
+vibrate([40,40,40]);
+}else{
+vibrate(10);
+}
+
+checkWin();
+}
+
+function erase(){
+
+if(selected===null||puzzle.p[selected]||finished)return;
+
+history.push([...board]);
+
+board[selected]=0;
+
+render();
+
+vibrate(10);
+}
+
+function undo(){
+
+if(!history.length||finished)return;
+
+board=history.pop();
+
+render();
+
+vibrate(15);
+}
+
+function resetBoard(){
+
+board=[...puzzle.p];
+
+selected=null;
+history=[];
+conflictFocus=null;
+finished=false;
+hintUsed=0;
+
+resetHintCooldown();
+
+winOverlay.style.display="none";
+boardEl.classList.remove("finished");
+boardCard.classList.remove("winGlow");
+
+render();
+
+vibrate(25);
+}
+
+function hint(){
+
+if(finished||hintCooldown)return;
+
+const options=board
+.map((v,i)=>v!==solution[i]&&!puzzle.p[i]?i:null)
+.filter(v=>v!==null);
+
+if(!options.length)return;
+
+history.push([...board]);
+
+const pick=options[Math.floor(Math.random()*options.length)];
+
+board[pick]=solution[pick];
+
+selected=pick;
+
+hintUsed++;
+
+render();
+
+checkWin();
+
+vibrate(30);
+
+startHintCooldown();
+}
+
+function startHintCooldown(){
+
+hintCooldown=true;
+hintLeft=5;
+
+hintBtn.style.opacity=".55";
+hintBtn.textContent=`💡 ${hintLeft}s`;
+
+clearInterval(hintTimer);
+
+hintTimer=setInterval(()=>{
+
+hintLeft--;
+
+if(hintLeft>0){
+
+hintBtn.textContent=`💡 ${hintLeft}s`;
+
+}else{
+
+resetHintCooldown();
+
+}
+
+},1000);
+
+}
+
+function resetHintCooldown(){
+
+clearInterval(hintTimer);
+
+hintCooldown=false;
+
+hintBtn.style.opacity="1";
+hintBtn.textContent="💡 Hint";
+}
+
+function isConflict(index){
+
+const value=board[index];
+
+if(!value)return false;
+
+const row=Math.floor(index/6);
+const col=index%6;
+
+for(let c=0;c<6;c++){
+const i=row*6+c;
+if(i!==index&&board[i]===value)return true;
+}
+
+for(let r=0;r<6;r++){
+const i=r*6+col;
+if(i!==index&&board[i]===value)return true;
+}
+
+const br=Math.floor(row/2)*2;
+const bc=Math.floor(col/3)*3;
+
+for(let r=0;r<2;r++){
+for(let c=0;c<3;c++){
+const i=(br+r)*6+(bc+c);
+if(i!==index&&board[i]===value)return true;
+}
+}
+
+return false;
+}
+
+function showConflict(){
+
+const cells=document.querySelectorAll(".cell");
+
+cells.forEach(c=>c.classList.remove("conflict"));
+
+if(conflictFocus===null)return;
+
+if(isConflict(conflictFocus)){
+cells[conflictFocus].classList.add("conflict");
+}else{
+conflictFocus=null;
+}
+
 }
 
 function checkWin(){
-  if(board.every((v,i)=>v===solution[i])){
-    finished=true; clearInterval(timer);
-    const text=hintUsed===0?"ชนะโดยไม่ใช้ Hint เลย":`ชนะแล้ว ใช้ Hint ${hintUsed} ครั้ง`;
-    winText.innerHTML=`🎉<br>${text}`; winOverlay.style.display="flex";
-    boardCard.classList.add("win-glow","win"); vibrate([40,40,80]);
-  }
+
+if(board.every((v,i)=>v===solution[i])){
+
+finished=true;
+
+clearInterval(timer);
+
+boardEl.classList.add("finished");
+
+boardCard.classList.add("winGlow");
+
+const hintText=hintUsed===0
+?"เล่นจบโดยไม่ใช้ Hint เลย 👏"
+:`ใช้ Hint ไป ${hintUsed} ครั้ง`;
+
+winText.innerHTML=`
+<div>⏱ ใช้เวลา ${timerEl.textContent}</div>
+<div style="margin-top:6px">${hintText}</div>
+`;
+
+winOverlay.style.display="flex";
+
+vibrate([60,40,80]);
+}
+}
+
+function toggleMenu(){
+document.getElementById("menu").classList.toggle("show");
+}
+
+let themeMode=localStorage.getItem("themeMode")||"auto";
+
+function applyTheme(){
+
+let active;
+
+if(themeMode==="auto"){
+active=window.matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light";
+}else{
+active=themeMode;
+}
+
+document.documentElement.setAttribute("data-theme",active);
+}
+
+function toggleTheme(){
+
+const current=document.documentElement.getAttribute("data-theme");
+
+themeMode=current==="dark"?"light":"dark";
+
+localStorage.setItem("themeMode",themeMode);
+
+applyTheme();
+
+document.getElementById("menu").classList.remove("show");
+}
+
+window.matchMedia("(prefers-color-scheme: dark)")
+.addEventListener("change",()=>{
+if(themeMode==="auto")applyTheme();
+});
+
+function openDonation(){
+document.getElementById("menu").classList.remove("show");
+donationOverlay.style.display="flex";
+}
+
+function hideDonation(){
+donationOverlay.style.display="none";
+}
+
+function closeDonation(e){
+if(e.target===donationOverlay){
+hideDonation();
+}
 }
 
 applyTheme();
 newGame();
 </script>
+
 </body>
 </html>
