@@ -423,7 +423,6 @@ margin:18px 60px 0;
 
 <div class="headerRow">
 <div class="title">Mini Sudoku</div>
-
 <div class="settingsBtn" onclick="toggleMenu()">⚙️</div>
 </div>
 
@@ -1063,26 +1062,19 @@ function toggleMenu(){
 document.getElementById("menu").classList.toggle("show");
 }
 
+/* AUTO DARK MODE SYSTEM */
+
 let themeMode="auto";
 
 function applyTheme(){
 
-let activeTheme;
-
-if(themeMode==="auto"){
-
-activeTheme=
+const activeTheme =
 window.matchMedia("(prefers-color-scheme: dark)").matches
 ?"dark"
 :"light";
 
-}else{
-
-activeTheme=themeMode;
-
-}
-
 document.documentElement.setAttribute("data-theme",activeTheme);
+
 }
 
 function toggleTheme(){
@@ -1090,25 +1082,24 @@ function toggleTheme(){
 const current=
 document.documentElement.getAttribute("data-theme");
 
-themeMode=
+const nextTheme=
 current==="dark"
 ?"light"
 :"dark";
 
-applyTheme();
+document.documentElement.setAttribute("data-theme",nextTheme);
 
 document
 .getElementById("menu")
 .classList.remove("show");
+
 }
 
 window
 .matchMedia("(prefers-color-scheme: dark)")
 .addEventListener("change",()=>{
 
-if(themeMode==="auto"){
 applyTheme();
-}
 
 });
 
