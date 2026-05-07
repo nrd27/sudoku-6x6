@@ -6,7 +6,10 @@
 <title>Mini Sudoku</title>
 
 <style>
-*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+*{
+box-sizing:border-box;
+-webkit-tap-highlight-color:transparent
+}
 
 :root{
 --bg:#f3f2ee;
@@ -35,19 +38,19 @@ html[data-theme="dark"]{
 --card:#1f1f21;
 --border:#343438;
 --text:#f5f5f5;
---muted:#8e8e93;
+--muted:#9d9d9d;
 --soft:#2a2a2d;
 --softText:#d0d0d0;
---blue:#4ea1ff;
---grid:#595959;
---line:#4a4a4a;
+--blue:#5ab0ff;
+--grid:#5f5f5f;
+--line:#474747;
 --cell:#1d1d1f;
---selected:#17426e;
---selectedLine:#5eb0ff;
+--selected:#1a4976;
+--selectedLine:#69bbff;
 --related:#243248;
---green:#64f59d;
---greenBg:#185a34;
---danger:#ff5d5d;
+--green:#6cffaa;
+--greenBg:#1d6039;
+--danger:#ff6b6b;
 }
 
 body{
@@ -98,7 +101,9 @@ font-size:20px;
 color:var(--text);
 }
 
-.settingsBtn:active{transform:scale(.95)}
+.settingsBtn:active{
+transform:scale(.95)
+}
 
 .settingsMenu{
 position:absolute;
@@ -114,7 +119,9 @@ z-index:50;
 box-shadow:0 20px 50px rgba(0,0,0,.18);
 }
 
-.settingsMenu.show{display:block}
+.settingsMenu.show{
+display:block
+}
 
 .menuItem{
 height:44px;
@@ -127,7 +134,7 @@ font-weight:800;
 }
 
 .menuItem:active{
-background:var(--soft);
+background:var(--soft)
 }
 
 .topbar{
@@ -149,7 +156,9 @@ font-size:19px;
 font-weight:850;
 }
 
-.pill:active{transform:scale(.98)}
+.pill:active{
+transform:scale(.98)
+}
 
 .boardWrap{
 position:relative;
@@ -161,10 +170,6 @@ border:1px solid var(--border);
 border-radius:26px;
 padding:14px;
 transition:.25s;
-}
-
-.boardCard.win{
-opacity:.9;
 }
 
 .board{
@@ -229,6 +234,7 @@ box-shadow:inset 0 0 0 3px var(--selectedLine);
 
 .completed{
 background:var(--greenBg)!important;
+color:var(--green);
 }
 
 .conflict{
@@ -237,7 +243,7 @@ animation:conflict .7s infinite;
 
 @keyframes conflict{
 0%{box-shadow:inset 0 0 0 0 rgba(255,77,79,0)}
-50%{box-shadow:inset 0 0 0 4px rgba(255,77,79,.85)}
+50%{box-shadow:inset 0 0 0 4px rgba(255,77,79,.9)}
 100%{box-shadow:inset 0 0 0 0 rgba(255,77,79,0)}
 }
 
@@ -260,7 +266,7 @@ transition:.12s;
 }
 
 button:active{
-transform:scale(.96);
+transform:scale(.96)
 }
 
 .small{
@@ -289,7 +295,7 @@ transition:.14s;
 }
 
 .tool:active{
-transform:scale(.95);
+transform:scale(.95)
 }
 
 .winOverlay{
@@ -314,8 +320,14 @@ animation:pop .28s ease;
 }
 
 @keyframes pop{
-from{opacity:0;transform:translateY(10px) scale(.95)}
-to{opacity:1;transform:translateY(0) scale(1)}
+from{
+opacity:0;
+transform:translateY(10px) scale(.95)
+}
+to{
+opacity:1;
+transform:translateY(0) scale(1)
+}
 }
 
 .winTitle{
@@ -382,10 +394,21 @@ color:var(--text);
 }
 
 @media(max-height:760px){
-.title{font-size:28px}
-button{height:52px}
-.cell{font-size:clamp(22px,7vw,34px)}
-.tools{margin:18px 60px 0}
+.title{
+font-size:28px
+}
+
+button{
+height:52px
+}
+
+.cell{
+font-size:clamp(22px,7vw,34px)
+}
+
+.tools{
+margin:18px 60px 0
+}
 }
 </style>
 </head>
@@ -413,9 +436,7 @@ button{height:52px}
 <div class="boardWrap">
 
 <div class="boardCard" id="boardCard">
-
 <div class="board" id="board"></div>
-
 </div>
 
 <div class="winOverlay" id="winOverlay">
@@ -734,35 +755,6 @@ cells[r*6+c].classList.add("completed");
 
 }
 
-for(let br=0;br<3;br++){
-
-for(let bc=0;bc<2;bc++){
-
-let ok=true;
-let block=[];
-
-for(let r=0;r<2;r++){
-for(let c=0;c<3;c++){
-
-const i=(br*2+r)*6+(bc*3+c);
-
-block.push(i);
-
-if(board[i]!==solution[i])ok=false;
-
-}
-}
-
-if(ok){
-block.forEach(i=>{
-cells[i].classList.add("completed");
-});
-}
-
-}
-
-}
-
 }
 
 function pressNum(num){
@@ -917,16 +909,6 @@ const i=r*6+col;
 if(i!==index&&board[i]===value)return true;
 }
 
-const br=Math.floor(row/2)*2;
-const bc=Math.floor(col/3)*3;
-
-for(let r=0;r<2;r++){
-for(let c=0;c<3;c++){
-const i=(br+r)*6+(bc+c);
-if(i!==index&&board[i]===value)return true;
-}
-}
-
 return false;
 }
 
@@ -977,37 +959,54 @@ function toggleMenu(){
 document.getElementById("menu").classList.toggle("show");
 }
 
-let themeMode=localStorage.getItem("themeMode")||"auto";
+/* AUTO DARK MODE SYSTEM */
+
+let themeMode="auto";
 
 function applyTheme(){
 
-let active;
+let activeTheme;
 
 if(themeMode==="auto"){
-active=window.matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light";
+
+activeTheme=window.matchMedia("(prefers-color-scheme: dark)").matches
+?"dark"
+:"light";
+
 }else{
-active=themeMode;
+
+activeTheme=themeMode;
+
 }
 
-document.documentElement.setAttribute("data-theme",active);
+document.documentElement.setAttribute("data-theme",activeTheme);
 }
 
 function toggleTheme(){
 
-const current=document.documentElement.getAttribute("data-theme");
+const current=
+document.documentElement.getAttribute("data-theme");
 
-themeMode=current==="dark"?"light":"dark";
-
-localStorage.setItem("themeMode",themeMode);
+themeMode=
+current==="dark"
+?"light"
+:"dark";
 
 applyTheme();
 
-document.getElementById("menu").classList.remove("show");
+document
+.getElementById("menu")
+.classList.remove("show");
 }
 
-window.matchMedia("(prefers-color-scheme: dark)")
+window
+.matchMedia("(prefers-color-scheme: dark)")
 .addEventListener("change",()=>{
-if(themeMode==="auto")applyTheme();
+
+if(themeMode==="auto"){
+applyTheme();
+}
+
 });
 
 function openDonation(){
