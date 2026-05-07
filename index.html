@@ -485,7 +485,6 @@ let history=[];
 let seconds=0;
 let timer=null;
 let finished=false;
-let conflictFocus=null;
 let hintUsed=0;
 
 let hintCooldown=false;
@@ -663,7 +662,6 @@ selected=null;
 history=[];
 seconds=0;
 finished=false;
-conflictFocus=null;
 hintUsed=0;
 
 clearInterval(timer);
@@ -851,8 +849,6 @@ history.push([...board]);
 
 board[selected]=num;
 
-conflictFocus=selected;
-
 render();
 
 if(isConflict(selected)){
@@ -895,7 +891,6 @@ board=[...puzzle.p];
 selected=null;
 history=[];
 finished=false;
-conflictFocus=null;
 hintUsed=0;
 
 winOverlay.style.display="none";
@@ -991,14 +986,20 @@ const col=index%6;
 
 // Row
 for(let c=0;c<6;c++){
+
 const i=row*6+c;
+
 if(i!==index&&board[i]===value)return true;
+
 }
 
 // Column
 for(let r=0;r<6;r++){
+
 const i=r*6+col;
+
 if(i!==index&&board[i]===value)return true;
+
 }
 
 // Block 2x3
@@ -1006,10 +1007,15 @@ const br=Math.floor(row/2)*2;
 const bc=Math.floor(col/3)*3;
 
 for(let r=0;r<2;r++){
+
 for(let c=0;c<3;c++){
+
 const i=(br+r)*6+(bc+c);
+
 if(i!==index&&board[i]===value)return true;
+
 }
+
 }
 
 return false;
@@ -1021,15 +1027,15 @@ const cells=document.querySelectorAll(".cell");
 
 cells.forEach(c=>c.classList.remove("conflict"));
 
-if(conflictFocus===null)return;
+for(let i=0;i<36;i++){
 
-if(isConflict(conflictFocus)){
+// ไม่ให้ช่องใบ้เด้งแดง
+if(puzzle.p[i])continue;
 
-cells[conflictFocus].classList.add("conflict");
-
-}else{
-
-conflictFocus=null;
+// เฉพาะช่องที่ผู้เล่นกรอกแล้ว
+if(board[i]&&isConflict(i)){
+cells[i].classList.add("conflict");
+}
 
 }
 
@@ -1070,8 +1076,6 @@ document.getElementById("menu").classList.toggle("show");
 }
 
 /* AUTO DARK MODE SYSTEM */
-
-let themeMode="auto";
 
 function applyTheme(){
 
