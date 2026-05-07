@@ -7,243 +7,94 @@
 <style>
 *{box-sizing:border-box}
 
-body{
-  margin:0;
-  background:#f3f2ee;
-  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;
+:root{
+  --page:#f3f2ee;--app:#faf9f6;--card:#fff;--border:#e2ddd4;
+  --text:#111;--muted:#a7a7a7;--soft:#ede9df;--softText:#666;
+  --grid:#333;--line:#777;--cell:#fffdf9;--related:#f2f7fb;
+  --selected:#dcecff;--selectedLine:#7db8f5;--complete:#dcf7d9;
+  --green:#18a058;--redSoft:#ffe3e3;--blue:#0a84ff;
 }
 
-.app{
-  max-width:430px;
-  min-height:100svh;
-  margin:auto;
-  padding:
-    max(14px, env(safe-area-inset-top))
-    16px
-    max(14px, env(safe-area-inset-bottom));
-  background:#faf9f6;
+html[data-theme="dark"]{
+  --page:#0f0f0f;--app:#151515;--card:#202020;--border:#373737;
+  --text:#f5f5f5;--muted:#8e8e8e;--soft:#2b2b2b;--softText:#d5d5d5;
+  --grid:#5b5b5b;--line:#4a4a4a;--cell:#1f1f1f;--related:#253247;
+  --selected:#174a7a;--selectedLine:#61b3ff;--complete:#2f7d46;
+  --green:#66e08d;--redSoft:#5a2424;--blue:#58a6ff;
 }
 
-.header{
-  text-align:center;
-  font-size:30px;
-  font-weight:900;
-  letter-spacing:-.8px;
-  margin:8px 0 16px;
-}
+body{margin:0;background:var(--page);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;color:var(--text)}
+.app{max-width:430px;min-height:100svh;margin:auto;padding:max(14px,env(safe-area-inset-top)) 16px max(14px,env(safe-area-inset-bottom));background:var(--app);position:relative}
 
-.topbar{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:12px;
-  margin-bottom:16px;
-}
+.headerRow{position:relative;display:flex;align-items:center;justify-content:center;margin:8px 0 16px}
+.header{font-size:30px;font-weight:900;letter-spacing:-.8px}
+.settingsBtn{position:absolute;right:0;width:40px;height:40px;border-radius:14px;background:var(--card);border:1px solid var(--border);color:var(--text);display:flex;align-items:center;justify-content:center;font-size:20px}
 
-.pill{
-  height:46px;
-  border-radius:18px;
-  background:#fff;
-  border:1px solid #e2ddd4;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  font-size:18px;
-  font-weight:800;
-}
+.settingsMenu{position:absolute;top:54px;right:16px;z-index:30;width:190px;background:var(--card);border:1px solid var(--border);border-radius:18px;padding:8px;box-shadow:0 18px 40px rgba(0,0,0,.18);display:none}
+.settingsMenu.show{display:block}
+.menuItem{height:42px;border-radius:12px;display:flex;align-items:center;padding:0 12px;font-size:15px;font-weight:800;color:var(--text)}
+.menuItem:active{background:var(--soft)}
 
-.board-card{
-  position:relative;
-  background:#fff;
-  border:1px solid #e2ddd4;
-  border-radius:24px;
-  padding:14px;
-  transition:box-shadow .25s ease;
-}
+.topbar{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px}
+.pill{height:46px;border-radius:18px;background:var(--card);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800;color:var(--text)}
 
-.board-card.win .board{
-  opacity:.22;
-  filter:blur(.5px);
-}
-
-.win-glow{
-  animation:winGlow 1s ease-in-out infinite;
-}
-
+.board-card{position:relative;background:var(--card);border:1px solid var(--border);border-radius:24px;padding:14px;transition:.25s}
+.board-card.win .board{opacity:.22;filter:blur(.5px)}
+.win-glow{animation:winGlow 1s ease-in-out infinite}
 @keyframes winGlow{
-  0%{box-shadow:0 0 0 0 rgba(24,160,88,.12);border-color:#e2ddd4}
-  50%{box-shadow:0 0 0 7px rgba(24,160,88,.28);border-color:#18a058}
-  100%{box-shadow:0 0 0 0 rgba(24,160,88,.12);border-color:#e2ddd4}
+  0%{box-shadow:0 0 0 0 rgba(24,160,88,.12);border-color:var(--border)}
+  50%{box-shadow:0 0 0 7px rgba(24,160,88,.28);border-color:var(--green)}
+  100%{box-shadow:0 0 0 0 rgba(24,160,88,.12);border-color:var(--border)}
 }
 
-.board{
-  display:grid;
-  grid-template-columns:repeat(6,1fr);
-  aspect-ratio:1;
-  border:4px solid #333;
-  border-radius:14px;
-  overflow:hidden;
-  background:#fffdf9;
-  transition:opacity .25s ease, filter .25s ease;
-}
-
-.cell{
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  background:#fffdf9;
-  font-size:clamp(26px,8vw,38px);
-  font-weight:900;
-  color:#111;
-  border-right:1px solid #777;
-  border-bottom:1px solid #777;
-  user-select:none;
-  transition:background .15s ease,box-shadow .15s ease;
-}
-
+.board{display:grid;grid-template-columns:repeat(6,1fr);aspect-ratio:1;border:4px solid var(--grid);border-radius:14px;overflow:hidden;background:var(--cell);transition:.25s}
+.cell{display:flex;align-items:center;justify-content:center;background:var(--cell);font-size:clamp(26px,8vw,38px);font-weight:900;color:var(--text);border-right:1px solid var(--line);border-bottom:1px solid var(--line);user-select:none;transition:.15s}
 .cell:nth-child(6n){border-right:none}
 .cell:nth-child(n+31){border-bottom:none}
-.cell:nth-child(6n+4){border-left:5px solid #333}
-.cell:nth-child(n+13):nth-child(-n+18),
-.cell:nth-child(n+25):nth-child(-n+30){border-top:5px solid #333}
+.cell:nth-child(6n+4){border-left:5px solid var(--grid)}
+.cell:nth-child(n+13):nth-child(-n+18),.cell:nth-child(n+25):nth-child(-n+30){border-top:5px solid var(--grid)}
+.given{color:var(--muted)}
+.related{background:var(--related)}
+.selected{background:var(--selected)!important;box-shadow:inset 0 0 0 3px var(--selectedLine)}
+.completed{background:var(--complete)!important}
+.blink-error{animation:error .6s ease infinite}
+@keyframes error{0%{background:var(--cell)}50%{background:var(--redSoft);box-shadow:inset 0 0 0 3px rgba(229,57,53,.55)}100%{background:var(--cell)}}
 
-.given{color:#a7a7a7}
-.related{background:#f2f7fb}
-.selected{background:#dcecff!important;box-shadow:inset 0 0 0 3px #7db8f5}
-.completed{background:#dcf7d9!important}
+.win-overlay{position:absolute;inset:14px;display:none;align-items:center;justify-content:center;pointer-events:none}
+.win-card{width:82%;padding:18px 16px;border-radius:24px;background:var(--card);border:1px solid rgba(24,160,88,.35);color:var(--green);font-size:18px;font-weight:900;text-align:center;box-shadow:0 16px 34px rgba(24,160,88,.18);animation:winPop .28s ease}
+@keyframes winPop{from{opacity:0;transform:translateY(10px) scale(.96)}to{opacity:1;transform:translateY(0) scale(1)}}
 
-.blink-error{
-  animation:error .6s ease infinite;
-}
+.keypad{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:14px}
+button{height:56px;border-radius:18px;border:1px solid var(--border);background:var(--card);color:var(--blue);font-size:28px;font-weight:900;transition:.12s}
+button:active,.pill:active,.tool:active,.settingsBtn:active{transform:scale(.96)}
+.small{font-size:16px;color:var(--softText)}
 
-@keyframes error{
-  0%{background:#fffdf9}
-  50%{background:#ffe3e3;box-shadow:inset 0 0 0 3px rgba(229,57,53,.55)}
-  100%{background:#fffdf9}
-}
+.tools{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:22px 44px 0;padding-top:6px}
+.tool{height:40px;border-radius:16px;background:var(--soft);color:var(--softText);display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:850;transition:.12s}
+.tool.pressed{animation:toolPress .22s ease}
+@keyframes toolPress{0%{transform:scale(1)}50%{transform:scale(.94)}100%{transform:scale(1)}}
 
-.win-overlay{
-  position:absolute;
-  inset:14px;
-  display:none;
-  align-items:center;
-  justify-content:center;
-  pointer-events:none;
-}
-
-.win-card{
-  width:82%;
-  padding:18px 16px;
-  border-radius:24px;
-  background:rgba(255,255,255,.96);
-  border:1px solid #bfe8c7;
-  color:#16834a;
-  font-size:18px;
-  font-weight:900;
-  text-align:center;
-  box-shadow:0 16px 34px rgba(24,160,88,.18);
-  animation:winPop .28s ease;
-}
-
-@keyframes winPop{
-  from{opacity:0;transform:translateY(10px) scale(.96)}
-  to{opacity:1;transform:translateY(0) scale(1)}
-}
-
-.keypad{
-  display:grid;
-  grid-template-columns:repeat(4,1fr);
-  gap:10px;
-  margin-top:14px;
-}
-
-button{
-  height:56px;
-  border-radius:18px;
-  border:1px solid #e2ddd4;
-  background:#fff;
-  color:#0a84ff;
-  font-size:28px;
-  font-weight:900;
-  transition:transform .12s ease, background .12s ease, box-shadow .12s ease;
-}
-
-button:active,.pill:active,.tool:active{
-  transform:scale(.96);
-}
-
-.small{
-  font-size:16px;
-  color:#555;
-}
-
-.tools{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:14px;
-  margin:22px 44px 0;
-  padding-top:6px;
-}
-
-.tool{
-  height:40px;
-  border-radius:16px;
-  background:#ede9df;
-  color:#666;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  font-size:15px;
-  font-weight:850;
-  transition:transform .12s ease, background .12s ease, box-shadow .12s ease, opacity .12s ease;
-}
-
-.tool:active{
-  background:#ded8cc;
-  box-shadow:inset 0 0 0 2px rgba(0,0,0,.06);
-}
-
-.tool.pressed{
-  animation:toolPress .22s ease;
-}
-
-@keyframes toolPress{
-  0%{transform:scale(1)}
-  50%{transform:scale(.94);background:#ded8cc}
-  100%{transform:scale(1)}
-}
+.donationOverlay{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;align-items:center;justify-content:center;z-index:50;padding:24px}
+.donationCard{width:100%;max-width:360px;background:var(--card);border:1px solid var(--border);border-radius:24px;padding:18px;text-align:center;box-shadow:0 20px 50px rgba(0,0,0,.25)}
+.donationCard h3{margin:0 0 12px;font-size:22px}
+.donationCard img{width:100%;border-radius:14px;background:#fff}
+.closeDonation{margin-top:14px;height:44px;border-radius:14px;font-size:16px;color:var(--text)}
 
 .msg{display:none}
 
-/* Responsive for shorter screens */
-@media (max-height:760px){
-  .header{font-size:26px;margin:4px 0 10px}
-  .topbar{margin-bottom:10px}
-  .pill{height:42px;font-size:16px}
-  .board-card{padding:10px;border-radius:20px}
-  .cell{font-size:clamp(22px,7vw,34px)}
-  .keypad{gap:8px;margin-top:10px}
-  button{height:50px;border-radius:15px;font-size:24px}
-  .small{font-size:14px}
-  .tools{margin:16px 56px 0;gap:10px}
-  .tool{height:36px;font-size:14px}
+@media(max-height:760px){
+  .header{font-size:26px}.headerRow{margin:4px 0 10px}.topbar{margin-bottom:10px}
+  .pill{height:42px;font-size:16px}.board-card{padding:10px;border-radius:20px}
+  .cell{font-size:clamp(22px,7vw,34px)}.keypad{gap:8px;margin-top:10px}
+  button{height:50px;border-radius:15px;font-size:24px}.small{font-size:14px}
+  .tools{margin:16px 56px 0;gap:10px}.tool{height:36px;font-size:14px}
 }
 
-@media (max-height:680px){
-  .header{display:none}
-  .topbar{margin-bottom:8px}
-  .pill{height:38px;font-size:15px}
-  .board-card{padding:8px}
-  .keypad{gap:7px;margin-top:8px}
-  button{height:44px;font-size:22px}
-  .tools{margin:12px 64px 0}
-  .tool{height:34px;font-size:13px}
-}
-
-@media (max-width:360px){
-  .app{padding-left:12px;padding-right:12px}
-  .cell{font-size:clamp(20px,7.5vw,30px)}
-  button{height:48px}
-  .tools{margin-left:48px;margin-right:48px}
+@media(max-height:680px){
+  .header{font-size:22px}.settingsBtn{width:36px;height:36px}
+  .pill{height:38px;font-size:15px}.board-card{padding:8px}
+  .keypad{gap:7px;margin-top:8px}button{height:44px;font-size:22px}
+  .tools{margin:12px 64px 0}.tool{height:34px;font-size:13px}
 }
 </style>
 </head>
@@ -251,7 +102,15 @@ button:active,.pill:active,.tool:active{
 <body>
 <div class="app">
 
-  <div class="header">Mini Sudoku</div>
+  <div class="headerRow">
+    <div class="header">Mini Sudoku</div>
+    <button class="settingsBtn" onclick="toggleSettings()">⚙</button>
+  </div>
+
+  <div class="settingsMenu" id="settingsMenu">
+    <div class="menuItem" id="themeToggle" onclick="toggleThemeMode()">🌙 Dark Mode</div>
+    <div class="menuItem" onclick="openDonation()">💙 Donation</div>
+  </div>
 
   <div class="topbar">
     <div class="pill">⏱ <span id="timer">0:00</span></div>
@@ -285,449 +144,190 @@ button:active,.pill:active,.tool:active{
 
 </div>
 
+<div class="donationOverlay" id="donationOverlay" onclick="closeDonation(event)">
+  <div class="donationCard">
+    <h3>Donation</h3>
+    <img src="donation.jpg" alt="Donation QR">
+    <button class="closeDonation" onclick="hideDonation()">Close</button>
+  </div>
+</div>
+
 <script>
-let puzzle, board, solution;
-let selected = null;
-let history = [];
-let seconds = 0;
-let timer = null;
-let finished = false;
-let conflictFocus = null;
-let hintUsed = 0;
+let puzzle, board, solution, selected=null, history=[], seconds=0, timer=null, finished=false, conflictFocus=null, hintUsed=0;
+let hintCooldown=false, hintCountdown=0, hintTimer=null;
+let themeMode=localStorage.getItem("miniSudokuTheme") || "auto";
 
-let hintCooldown = false;
-let hintCountdown = 0;
-let hintTimer = null;
+const boardEl=document.getElementById("board"), timerEl=document.getElementById("timer"), msg=document.getElementById("msg");
+const boardCard=document.getElementById("boardCard"), hintBtn=document.getElementById("hintBtn"), resetBtn=document.getElementById("resetBtn");
+const winOverlay=document.getElementById("winOverlay"), winText=document.getElementById("winText"), settingsMenu=document.getElementById("settingsMenu");
+const themeToggle=document.getElementById("themeToggle"), donationOverlay=document.getElementById("donationOverlay");
 
-const boardEl = document.getElementById("board");
-const timerEl = document.getElementById("timer");
-const msg = document.getElementById("msg");
-const boardCard = document.getElementById("boardCard");
-const hintBtn = document.getElementById("hintBtn");
-const resetBtn = document.getElementById("resetBtn");
-const winOverlay = document.getElementById("winOverlay");
-const winText = document.getElementById("winText");
-
-function vibrate(pattern=15){
-  if(navigator.vibrate) navigator.vibrate(pattern);
+function getSystemTheme(){return window.matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+function applyTheme(){
+  const active=themeMode==="auto"?getSystemTheme():themeMode;
+  document.documentElement.setAttribute("data-theme",active);
+  themeToggle.textContent=active==="dark"?"☀️ Light Mode":"🌙 Dark Mode";
 }
-
-function pressEffect(el){
-  el.classList.remove("pressed");
-  void el.offsetWidth;
-  el.classList.add("pressed");
+function toggleThemeMode(){
+  const active=document.documentElement.getAttribute("data-theme");
+  themeMode=active==="dark"?"light":"dark";
+  localStorage.setItem("miniSudokuTheme",themeMode);
+  applyTheme();
+  settingsMenu.classList.remove("show");
 }
+function toggleSettings(){settingsMenu.classList.toggle("show")}
+function openDonation(){settingsMenu.classList.remove("show");donationOverlay.style.display="flex"}
+function hideDonation(){donationOverlay.style.display="none"}
+function closeDonation(e){if(e.target===donationOverlay)hideDonation()}
 
-function shuffle(arr){
-  const a=[...arr];
-  for(let i=a.length-1;i>0;i--){
-    const j=Math.floor(Math.random()*(i+1));
-    [a[i],a[j]]=[a[j],a[i]];
-  }
-  return a;
-}
+window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change",()=>{if(themeMode==="auto")applyTheme()});
+document.addEventListener("click",(e)=>{if(!settingsMenu.contains(e.target)&&!e.target.classList.contains("settingsBtn"))settingsMenu.classList.remove("show")});
+
+function vibrate(p=15){if(navigator.vibrate)navigator.vibrate(p)}
+function pressEffect(el){el.classList.remove("pressed");void el.offsetWidth;el.classList.add("pressed")}
+function shuffle(arr){const a=[...arr];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
 
 function generateSolution(){
-  const base=[
-    [1,2,3,4,5,6],
-    [4,5,6,1,2,3],
-    [2,3,4,5,6,1],
-    [5,6,1,2,3,4],
-    [3,4,5,6,1,2],
-    [6,1,2,3,4,5]
-  ];
-
-  let rows=[], cols=[];
+  const base=[[1,2,3,4,5,6],[4,5,6,1,2,3],[2,3,4,5,6,1],[5,6,1,2,3,4],[3,4,5,6,1,2],[6,1,2,3,4,5]];
+  let rows=[],cols=[];
   shuffle([0,1,2]).forEach(b=>shuffle([0,1]).forEach(r=>rows.push(b*2+r)));
   shuffle([0,1]).forEach(s=>shuffle([0,1,2]).forEach(c=>cols.push(s*3+c)));
-
-  const nums=shuffle([1,2,3,4,5,6]);
-  const map={};
+  const nums=shuffle([1,2,3,4,5,6]), map={};
   [1,2,3,4,5,6].forEach((n,i)=>map[n]=nums[i]);
-
   return rows.flatMap(r=>cols.map(c=>map[base[r][c]]));
 }
 
 function isValid(grid,index,num){
-  const row=Math.floor(index/6);
-  const col=index%6;
-
-  for(let c=0;c<6;c++){
-    if(c!==col && grid[row*6+c]===num) return false;
-  }
-
-  for(let r=0;r<6;r++){
-    if(r!==row && grid[r*6+col]===num) return false;
-  }
-
-  const br=Math.floor(row/2)*2;
-  const bc=Math.floor(col/3)*3;
-
-  for(let r=0;r<2;r++){
-    for(let c=0;c<3;c++){
-      const i=(br+r)*6+(bc+c);
-      if(i!==index && grid[i]===num) return false;
-    }
-  }
-
+  const row=Math.floor(index/6), col=index%6;
+  for(let c=0;c<6;c++)if(c!==col&&grid[row*6+c]===num)return false;
+  for(let r=0;r<6;r++)if(r!==row&&grid[r*6+col]===num)return false;
+  const br=Math.floor(row/2)*2, bc=Math.floor(col/3)*3;
+  for(let r=0;r<2;r++)for(let c=0;c<3;c++){const i=(br+r)*6+(bc+c);if(i!==index&&grid[i]===num)return false}
   return true;
 }
 
 function countSolutions(grid){
   const empty=grid.indexOf(0);
-  if(empty===-1) return 1;
-
+  if(empty===-1)return 1;
   let count=0;
   for(const n of shuffle([1,2,3,4,5,6])){
     if(isValid(grid,empty,n)){
-      grid[empty]=n;
-      count+=countSolutions(grid);
-      grid[empty]=0;
-      if(count>1) return count;
+      grid[empty]=n; count+=countSolutions(grid); grid[empty]=0;
+      if(count>1)return count;
     }
   }
   return count;
 }
 
 function hasBalancedClues(p){
-  for(let r=0;r<6;r++){
-    let count=0;
-    for(let c=0;c<6;c++) if(p[r*6+c]) count++;
-    if(count===0) return false;
-  }
-
-  for(let c=0;c<6;c++){
-    let count=0;
-    for(let r=0;r<6;r++) if(p[r*6+c]) count++;
-    if(count===0) return false;
-  }
-
-  for(let br=0;br<3;br++){
-    for(let bc=0;bc<2;bc++){
-      let count=0;
-      for(let r=0;r<2;r++){
-        for(let c=0;c<3;c++){
-          if(p[(br*2+r)*6+(bc*3+c)]) count++;
-        }
-      }
-      if(count===0) return false;
-    }
-  }
-
+  for(let r=0;r<6;r++){let count=0;for(let c=0;c<6;c++)if(p[r*6+c])count++;if(count===0)return false}
+  for(let c=0;c<6;c++){let count=0;for(let r=0;r<6;r++)if(p[r*6+c])count++;if(count===0)return false}
+  for(let br=0;br<3;br++)for(let bc=0;bc<2;bc++){let count=0;for(let r=0;r<2;r++)for(let c=0;c<3;c++)if(p[(br*2+r)*6+(bc*3+c)])count++;if(count===0)return false}
   return true;
 }
 
 function generatePuzzle(){
-  const sol=generateSolution();
-  const p=[...sol];
-  const cells=shuffle([...Array(36).keys()]);
-  const targetClues=9+Math.floor(Math.random()*2);
-
+  const sol=generateSolution(), p=[...sol], cells=shuffle([...Array(36).keys()]), targetClues=9+Math.floor(Math.random()*2);
   for(const i of cells){
-    const backup=p[i];
-    p[i]=0;
-
-    const cluesLeft=p.filter(v=>v!==0).length;
-    const unique=countSolutions([...p])===1;
-    const balanced=hasBalancedClues(p);
-
-    if(!unique || cluesLeft<targetClues || !balanced){
-      p[i]=backup;
-    }
+    const backup=p[i]; p[i]=0;
+    const cluesLeft=p.filter(v=>v!==0).length, unique=countSolutions([...p])===1, balanced=hasBalancedClues(p);
+    if(!unique||cluesLeft<targetClues||!balanced)p[i]=backup;
   }
-
   return {p,s:sol};
 }
 
 function resetHintCooldown(){
-  clearInterval(hintTimer);
-  hintCooldown = false;
-  hintCountdown = 0;
-  hintBtn.textContent = "💡 Hint";
-  hintBtn.style.opacity = "1";
+  clearInterval(hintTimer); hintCooldown=false; hintCountdown=0; hintBtn.textContent="💡 Hint"; hintBtn.style.opacity="1";
 }
-
 function startHintCooldown(){
-  hintCooldown = true;
-  hintCountdown = 5;
-  hintBtn.textContent = `💡 ${hintCountdown}s`;
-  hintBtn.style.opacity = "0.55";
-
+  hintCooldown=true; hintCountdown=5; hintBtn.textContent=`💡 ${hintCountdown}s`; hintBtn.style.opacity=".55";
   clearInterval(hintTimer);
-  hintTimer = setInterval(()=>{
-    hintCountdown--;
-
-    if(hintCountdown > 0){
-      hintBtn.textContent = `💡 ${hintCountdown}s`;
-    }else{
-      resetHintCooldown();
-    }
-  },1000);
+  hintTimer=setInterval(()=>{hintCountdown--; if(hintCountdown>0)hintBtn.textContent=`💡 ${hintCountdown}s`; else resetHintCooldown()},1000);
 }
 
 function newGame(){
-  const g=generatePuzzle();
-  puzzle=g;
-  board=[...g.p];
-  solution=[...g.s];
-
-  selected=null;
-  history=[];
-  conflictFocus=null;
-  hintUsed=0;
-  seconds=0;
-  finished=false;
-  msg.innerHTML="";
-  timerEl.textContent="0:00";
-  boardCard.classList.remove("win-glow","win");
-  winOverlay.style.display="none";
-  winText.innerHTML="";
-  resetHintCooldown();
-
+  const g=generatePuzzle(); puzzle=g; board=[...g.p]; solution=[...g.s];
+  selected=null; history=[]; conflictFocus=null; hintUsed=0; seconds=0; finished=false;
+  msg.innerHTML=""; timerEl.textContent="0:00"; boardCard.classList.remove("win-glow","win"); winOverlay.style.display="none"; winText.innerHTML=""; resetHintCooldown();
   clearInterval(timer);
-  timer=setInterval(()=>{
-    if(finished) return;
-    seconds++;
-    const m=Math.floor(seconds/60);
-    const s=seconds%60;
-    timerEl.textContent=`${m}:${String(s).padStart(2,"0")}`;
-  },1000);
-
-  render();
-  vibrate(10);
+  timer=setInterval(()=>{if(finished)return;seconds++;const m=Math.floor(seconds/60),s=seconds%60;timerEl.textContent=`${m}:${String(s).padStart(2,"0")}`},1000);
+  render(); vibrate(10);
 }
 
 function render(){
   boardEl.innerHTML="";
-
   board.forEach((value,index)=>{
-    const cell=document.createElement("div");
-    cell.className="cell";
-
-    if(value) cell.textContent=value;
-    if(puzzle.p[index]) cell.classList.add("given");
-
-    cell.onclick=()=>{
-      selected=index;
-      render();
-      vibrate(8);
-    };
-
+    const cell=document.createElement("div"); cell.className="cell";
+    if(value)cell.textContent=value; if(puzzle.p[index])cell.classList.add("given");
+    cell.onclick=()=>{selected=index;render();vibrate(8)};
     boardEl.appendChild(cell);
   });
-
-  highlight();
-  markDone();
-  applyConflictFocus();
+  highlight(); markDone(); applyConflictFocus();
 }
 
 function pressNum(num){
-  if(selected===null || puzzle.p[selected] || finished) return;
-
-  history.push([...board]);
-  board[selected]=num;
-  conflictFocus=selected;
-
-  render();
-
-  if(isCellInConflict(selected)){
-    vibrate([35,40,35]);
-  }else{
-    vibrate(12);
-  }
-
-  checkWin();
+  if(selected===null||puzzle.p[selected]||finished)return;
+  history.push([...board]); board[selected]=num; conflictFocus=selected;
+  render(); vibrate(isCellInConflict(selected)?[35,40,35]:12); checkWin();
 }
-
 function erase(){
-  if(selected===null || puzzle.p[selected] || finished) return;
-
-  history.push([...board]);
-  board[selected]=0;
-
-  if(conflictFocus===selected) conflictFocus=null;
-
-  render();
-  vibrate(10);
+  if(selected===null||puzzle.p[selected]||finished)return;
+  history.push([...board]); board[selected]=0; if(conflictFocus===selected)conflictFocus=null; render(); vibrate(10);
 }
-
-function undo(){
-  if(!history.length || finished) return;
-
-  board=history.pop();
-  conflictFocus=null;
-  render();
-  vibrate(15);
-}
-
+function undo(){if(!history.length||finished)return;board=history.pop();conflictFocus=null;render();vibrate(15)}
 function resetBoard(){
-  pressEffect(resetBtn);
-
-  board=[...puzzle.p];
-  selected=null;
-  history=[];
-  conflictFocus=null;
-  hintUsed=0;
-  msg.innerHTML="";
-  finished=false;
-  boardCard.classList.remove("win-glow","win");
-  winOverlay.style.display="none";
-  winText.innerHTML="";
-  resetHintCooldown();
-  render();
-  vibrate(20);
+  pressEffect(resetBtn); board=[...puzzle.p]; selected=null; history=[]; conflictFocus=null; hintUsed=0; msg.innerHTML=""; finished=false;
+  boardCard.classList.remove("win-glow","win"); winOverlay.style.display="none"; winText.innerHTML=""; resetHintCooldown(); render(); vibrate(20);
 }
-
 function hint(){
-  pressEffect(hintBtn);
-
-  if(finished || hintCooldown) return;
-
-  const options=board
-    .map((v,i)=>v!==solution[i] && !puzzle.p[i] ? i : null)
-    .filter(v=>v!==null);
-
-  if(!options.length) return;
-
-  history.push([...board]);
-  const pick=options[Math.floor(Math.random()*options.length)];
-  board[pick]=solution[pick];
-  selected=pick;
-  hintUsed++;
-
-  if(conflictFocus===pick) conflictFocus=null;
-
-  render();
-  checkWin();
-  vibrate(25);
-
-  startHintCooldown();
+  pressEffect(hintBtn); if(finished||hintCooldown)return;
+  const options=board.map((v,i)=>v!==solution[i]&&!puzzle.p[i]?i:null).filter(v=>v!==null);
+  if(!options.length)return;
+  history.push([...board]); const pick=options[Math.floor(Math.random()*options.length)];
+  board[pick]=solution[pick]; selected=pick; hintUsed++; if(conflictFocus===pick)conflictFocus=null;
+  render(); checkWin(); vibrate(25); startHintCooldown();
 }
 
 function highlight(){
-  const cells=document.querySelectorAll(".cell");
-
-  if(selected===null) return;
-
-  const r=Math.floor(selected/6);
-  const c=selected%6;
-  const v=board[selected];
-
-  cells.forEach((cell,i)=>{
-    const rr=Math.floor(i/6);
-    const cc=i%6;
-
-    const sameRow=rr===r;
-    const sameCol=cc===c;
-    const sameNumber=v && board[i]===v;
-
-    if(sameRow || sameCol || sameNumber){
-      cell.classList.add("related");
-    }
-  });
-
+  const cells=document.querySelectorAll(".cell"); if(selected===null)return;
+  const r=Math.floor(selected/6),c=selected%6,v=board[selected];
+  cells.forEach((cell,i)=>{const rr=Math.floor(i/6),cc=i%6;if(rr===r||cc===c||(v&&board[i]===v))cell.classList.add("related")});
   cells[selected].classList.add("selected");
 }
 
 function markDone(){
-  const cells=document.querySelectorAll(".cell");
-  cells.forEach(c=>c.classList.remove("completed"));
-
-  for(let r=0;r<6;r++){
-    let ok=true;
-    for(let c=0;c<6;c++){
-      const i=r*6+c;
-      if(board[i]!==solution[i]) ok=false;
-    }
-    if(ok) for(let c=0;c<6;c++) cells[r*6+c].classList.add("completed");
-  }
-
-  for(let c=0;c<6;c++){
-    let ok=true;
-    for(let r=0;r<6;r++){
-      const i=r*6+c;
-      if(board[i]!==solution[i]) ok=false;
-    }
-    if(ok) for(let r=0;r<6;r++) cells[r*6+c].classList.add("completed");
-  }
-
-  for(let br=0;br<3;br++){
-    for(let bc=0;bc<2;bc++){
-      let ok=true;
-      const block=[];
-
-      for(let r=0;r<2;r++){
-        for(let c=0;c<3;c++){
-          const i=(br*2+r)*6+(bc*3+c);
-          block.push(i);
-          if(board[i]!==solution[i]) ok=false;
-        }
-      }
-
-      if(ok) block.forEach(i=>cells[i].classList.add("completed"));
-    }
-  }
+  const cells=document.querySelectorAll(".cell"); cells.forEach(c=>c.classList.remove("completed"));
+  for(let r=0;r<6;r++){let ok=true;for(let c=0;c<6;c++){const i=r*6+c;if(board[i]!==solution[i])ok=false}if(ok)for(let c=0;c<6;c++)cells[r*6+c].classList.add("completed")}
+  for(let c=0;c<6;c++){let ok=true;for(let r=0;r<6;r++){const i=r*6+c;if(board[i]!==solution[i])ok=false}if(ok)for(let r=0;r<6;r++)cells[r*6+c].classList.add("completed")}
+  for(let br=0;br<3;br++)for(let bc=0;bc<2;bc++){let ok=true,block=[];for(let r=0;r<2;r++)for(let c=0;c<3;c++){const i=(br*2+r)*6+(bc*3+c);block.push(i);if(board[i]!==solution[i])ok=false}if(ok)block.forEach(i=>cells[i].classList.add("completed"))}
 }
 
 function isCellInConflict(index){
-  const value=board[index];
-  if(!value) return false;
-
-  const row=Math.floor(index/6);
-  const col=index%6;
-
-  for(let c=0;c<6;c++){
-    const i=row*6+c;
-    if(i!==index && board[i]===value) return true;
-  }
-
-  for(let r=0;r<6;r++){
-    const i=r*6+col;
-    if(i!==index && board[i]===value) return true;
-  }
-
-  const br=Math.floor(row/2)*2;
-  const bc=Math.floor(col/3)*3;
-
-  for(let r=0;r<2;r++){
-    for(let c=0;c<3;c++){
-      const i=(br+r)*6+(bc+c);
-      if(i!==index && board[i]===value) return true;
-    }
-  }
-
+  const value=board[index]; if(!value)return false;
+  const row=Math.floor(index/6),col=index%6;
+  for(let c=0;c<6;c++){const i=row*6+c;if(i!==index&&board[i]===value)return true}
+  for(let r=0;r<6;r++){const i=r*6+col;if(i!==index&&board[i]===value)return true}
+  const br=Math.floor(row/2)*2,bc=Math.floor(col/3)*3;
+  for(let r=0;r<2;r++)for(let c=0;c<3;c++){const i=(br+r)*6+(bc+c);if(i!==index&&board[i]===value)return true}
   return false;
 }
 
 function applyConflictFocus(){
   const cells=document.querySelectorAll(".cell");
-
-  if(conflictFocus===null) return;
-
-  if(isCellInConflict(conflictFocus)){
-    cells[conflictFocus].classList.add("blink-error");
-  }else{
-    conflictFocus=null;
-  }
+  if(conflictFocus===null)return;
+  if(isCellInConflict(conflictFocus))cells[conflictFocus].classList.add("blink-error"); else conflictFocus=null;
 }
 
 function checkWin(){
   if(board.every((v,i)=>v===solution[i])){
-    finished=true;
-    clearInterval(timer);
-
-    const text = hintUsed === 0
-      ? "ชนะโดยไม่ใช้ Hint เลย"
-      : `ชนะแล้ว ใช้ Hint ${hintUsed} ครั้ง`;
-
-    winText.innerHTML = `🎉<br>${text}`;
-    winOverlay.style.display="flex";
-
-    boardCard.classList.add("win-glow","win");
-    vibrate([40,40,80]);
+    finished=true; clearInterval(timer);
+    const text=hintUsed===0?"ชนะโดยไม่ใช้ Hint เลย":`ชนะแล้ว ใช้ Hint ${hintUsed} ครั้ง`;
+    winText.innerHTML=`🎉<br>${text}`; winOverlay.style.display="flex";
+    boardCard.classList.add("win-glow","win"); vibrate([40,40,80]);
   }
 }
 
+applyTheme();
 newGame();
 </script>
 </body>
