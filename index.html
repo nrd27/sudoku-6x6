@@ -30,6 +30,8 @@ box-sizing:border-box;
 --green:#1fa85c;
 --greenBg:#dff8e7;
 --danger:#ff4d4f;
+--shadow:rgba(0,0,0,.08);
+--shadowStrong:rgba(0,0,0,.16);
 }
 
 html[data-theme="dark"]{
@@ -51,6 +53,8 @@ html[data-theme="dark"]{
 --green:#79ffae;
 --greenBg:#1f6a42;
 --danger:#ff6b6b;
+--shadow:rgba(0,0,0,.22);
+--shadowStrong:rgba(0,0,0,.35);
 }
 
 body{
@@ -70,26 +74,27 @@ position:relative;
 }
 
 .headerRow{
-display:flex;
+display:grid;
+grid-template-columns:96px minmax(0,1fr) 44px;
 align-items:center;
-justify-content:center;
-position:relative;
+gap:10px;
 margin:8px 0 16px;
 }
 
 .title{
-font-size:26px;
+font-size:21px;
 font-weight:900;
-letter-spacing:-.7px;
+letter-spacing:-.45px;
+text-align:center;
+white-space:nowrap;
+line-height:1;
 }
 
 .levelBtn{
-position:absolute;
-left:0;
-height:42px;
-min-width:86px;
-padding:0 12px;
-border-radius:14px;
+height:44px;
+width:96px;
+padding:0 10px;
+border-radius:15px;
 border:1px solid var(--border);
 background:var(--card);
 display:flex;
@@ -98,7 +103,7 @@ justify-content:center;
 font-size:14px;
 font-weight:850;
 color:var(--text);
-cursor:pointer;
+justify-self:start;
 }
 
 .levelMenu{
@@ -112,7 +117,7 @@ border-radius:18px;
 padding:8px;
 display:none;
 z-index:99;
-box-shadow:0 20px 50px rgba(0,0,0,.2);
+box-shadow:0 20px 50px var(--shadowStrong);
 }
 
 .levelMenu.show{
@@ -120,18 +125,16 @@ display:block;
 }
 
 .settingsBtn{
-position:absolute;
-right:0;
 width:44px;
 height:44px;
-border-radius:14px;
+border-radius:15px;
 border:1px solid var(--border);
 background:var(--card);
 display:flex;
 align-items:center;
 justify-content:center;
 font-size:20px;
-cursor:pointer;
+justify-self:end;
 }
 
 .settingsMenu{
@@ -145,7 +148,7 @@ border-radius:18px;
 padding:8px;
 display:none;
 z-index:99;
-box-shadow:0 20px 50px rgba(0,0,0,.2);
+box-shadow:0 20px 50px var(--shadowStrong);
 }
 
 .settingsMenu.show{
@@ -160,7 +163,6 @@ padding:0 14px;
 border-radius:12px;
 font-size:15px;
 font-weight:800;
-cursor:pointer;
 }
 
 .topbar{
@@ -180,7 +182,6 @@ align-items:center;
 justify-content:center;
 font-size:18px;
 font-weight:850;
-cursor:pointer;
 }
 
 .boardWrap{
@@ -251,7 +252,6 @@ z-index:1;
 min-width:0;
 min-height:0;
 border:none;
-cursor:pointer;
 }
 
 .cell:active{
@@ -330,7 +330,6 @@ color:var(--blue);
 font-size:28px;
 font-weight:900;
 transition:.12s;
-cursor:pointer;
 }
 
 .small{
@@ -356,7 +355,6 @@ font-size:15px;
 font-weight:850;
 color:var(--softText);
 transition:.14s;
-cursor:pointer;
 }
 
 button,
@@ -368,7 +366,7 @@ button,
 position:relative;
 overflow:hidden;
 transform:translateZ(0);
-box-shadow:0 6px 14px rgba(0,0,0,.06);
+box-shadow:0 8px 18px var(--shadow);
 transition:transform .12s ease,filter .12s ease,box-shadow .12s ease,background .12s ease;
 }
 
@@ -380,7 +378,7 @@ button:active,
 .menuItem:active{
 transform:scale(.94);
 filter:brightness(.94);
-box-shadow:0 2px 6px rgba(0,0,0,.12) inset;
+box-shadow:0 3px 8px var(--shadowStrong) inset;
 }
 
 .ripple{
@@ -390,7 +388,6 @@ background:rgba(10,132,255,.22);
 transform:scale(0);
 animation:ripple .45s ease-out;
 pointer-events:none;
-z-index:10;
 }
 
 @keyframes ripple{
@@ -500,15 +497,43 @@ font-size:16px;
 color:var(--text);
 }
 
-@media(max-height:760px){
+@media(max-width:390px){
+.headerRow{
+grid-template-columns:88px minmax(0,1fr) 42px;
+gap:8px;
+}
 
 .title{
-font-size:24px;
+font-size:19px;
 }
 
 .levelBtn{
-height:38px;
-min-width:78px;
+width:88px;
+height:42px;
+font-size:13px;
+}
+
+.settingsBtn{
+width:42px;
+height:42px;
+}
+}
+
+@media(max-height:760px){
+.app{
+padding:max(12px,env(safe-area-inset-top)) 16px max(14px,env(safe-area-inset-bottom));
+}
+
+.headerRow{
+margin:4px 0 14px;
+}
+
+.title{
+font-size:19px;
+}
+
+.levelBtn{
+height:40px;
 font-size:13px;
 }
 
@@ -528,7 +553,6 @@ font-size:clamp(22px,7vw,34px);
 .tools{
 margin:18px 60px 0;
 }
-
 }
 </style>
 </head>
@@ -1214,3 +1238,8 @@ newGame();
 
 </body>
 </html>
+"""
+
+path = Path("/mnt/data/mini-sudoku-header-button-effects.html")
+path.write_text(html, encoding="utf-8")
+print(path)
