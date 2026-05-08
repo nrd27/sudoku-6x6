@@ -346,7 +346,7 @@ color:var(--softText);
 display:grid;
 grid-template-columns:1fr 1fr;
 gap:14px;
-margin:24px 48px 0;
+margin:42px 48px 0;
 }
 
 .tool{
@@ -666,9 +666,9 @@ return a;
 }
 
 function getTargetClues(){
-if(currentLevel==="easy") return 16+Math.floor(Math.random()*2);
-if(currentLevel==="hard") return 5+Math.floor(Math.random()*2);
-return 10+Math.floor(Math.random()*2);
+if(currentLevel==="easy") return 17;
+if(currentLevel==="hard") return 6;
+return 11;
 }
 
 function generateSolution(){
@@ -749,35 +749,15 @@ if(count>1)return count;
 return count;
 }
 
-function hasBalancedClues(p){
-if(currentLevel==="hard") return true;
-
-const minPerLine=currentLevel==="easy"?2:1;
-
-for(let r=0;r<6;r++){
-let count=0;
-for(let c=0;c<6;c++){
-if(p[r*6+c])count++;
-}
-if(count<minPerLine)return false;
-}
-
-for(let c=0;c<6;c++){
-let count=0;
-for(let r=0;r<6;r++){
-if(p[r*6+c])count++;
-}
-if(count<minPerLine)return false;
-}
-
-return true;
-}
-
 function generatePuzzle(){
+let best=null;
+let bestDiff=999;
+
+for(let attempt=0;attempt<80;attempt++){
 const sol=generateSolution();
 const p=[...sol];
 
-const cells=shuffle([...Array(36).keys()]);
+let cells=shuffle([...Array(36).keys()]);
 const target=getTargetClues();
 
 for(const i of cells){
@@ -787,14 +767,26 @@ p[i]=0;
 
 const clues=p.filter(v=>v!==0).length;
 const unique=countSolutions([...p])===1;
-const balanced=hasBalancedClues(p);
 
-if(!unique||clues<target||!balanced){
+if(!unique||clues<target){
 p[i]=keep;
 }
 }
 
+const clues=p.filter(v=>v!==0).length;
+const diff=Math.abs(clues-target);
+
+if(diff<bestDiff){
+bestDiff=diff;
+best={p,s:sol};
+}
+
+if(clues===target){
 return{p,s:sol};
+}
+}
+
+return best;
 }
 
 function newGame(){
