@@ -75,14 +75,14 @@ position:relative;
 
 .headerRow{
 display:grid;
-grid-template-columns:96px minmax(0,1fr) 44px;
+grid-template-columns:44px minmax(0,1fr) 44px;
 align-items:center;
 gap:10px;
 margin:8px 0 16px;
 }
 
 .title{
-font-size:21px;
+font-size:22px;
 font-weight:900;
 letter-spacing:-.45px;
 text-align:center;
@@ -92,16 +92,16 @@ line-height:1;
 
 .levelBtn{
 height:44px;
-width:96px;
-padding:0 10px;
+width:44px;
+padding:0;
 border-radius:15px;
 border:1px solid var(--border);
 background:var(--card);
 display:flex;
 align-items:center;
 justify-content:center;
-font-size:14px;
-font-weight:850;
+font-size:15px;
+font-weight:900;
 color:var(--text);
 justify-self:start;
 }
@@ -163,6 +163,11 @@ padding:0 14px;
 border-radius:12px;
 font-size:15px;
 font-weight:800;
+}
+
+.menuItem.active{
+background:var(--soft);
+color:var(--blue);
 }
 
 .topbar{
@@ -499,18 +504,18 @@ color:var(--text);
 
 @media(max-width:390px){
 .headerRow{
-grid-template-columns:88px minmax(0,1fr) 42px;
+grid-template-columns:42px minmax(0,1fr) 42px;
 gap:8px;
 }
 
 .title{
-font-size:19px;
+font-size:20px;
 }
 
 .levelBtn{
-width:88px;
+width:42px;
 height:42px;
-font-size:13px;
+font-size:14px;
 }
 
 .settingsBtn{
@@ -529,10 +534,11 @@ margin:4px 0 14px;
 }
 
 .title{
-font-size:19px;
+font-size:20px;
 }
 
 .levelBtn{
+width:40px;
 height:40px;
 font-size:13px;
 }
@@ -562,7 +568,7 @@ margin:18px 60px 0;
 <div class="app">
 
 <div class="headerRow">
-<div class="levelBtn" id="levelBtn" onclick="toggleLevelMenu()">Normal ▾</div>
+<div class="levelBtn" id="levelBtn" onclick="toggleLevelMenu()">N</div>
 <div class="title">Mini Sudoku</div>
 <div class="settingsBtn" onclick="toggleMenu()">⚙️</div>
 </div>
@@ -1125,17 +1131,34 @@ document.getElementById("levelMenu").classList.toggle("show");
 document.getElementById("menu").classList.remove("show");
 }
 
+function updateLevelUI(){
+const label =
+currentLevel==="easy"
+?"E"
+:currentLevel==="hard"
+?"H"
+:"N";
+
+document.getElementById("levelBtn").textContent=label;
+
+document.querySelectorAll("#levelMenu .menuItem").forEach(item=>{
+item.classList.remove("active");
+});
+
+const activeIndex =
+currentLevel==="easy"
+?0
+:currentLevel==="hard"
+?2
+:1;
+
+document.querySelectorAll("#levelMenu .menuItem")[activeIndex].classList.add("active");
+}
+
 function setLevel(level){
 currentLevel=level;
 
-const label =
-level==="easy"
-?"Easy ▾"
-:level==="hard"
-?"Hard ▾"
-:"Normal ▾";
-
-document.getElementById("levelBtn").textContent=label;
+updateLevelUI();
 document.getElementById("levelMenu").classList.remove("show");
 
 newGame();
@@ -1232,14 +1255,10 @@ menu.classList.remove("show");
 });
 
 applyTheme();
+updateLevelUI();
 addRippleEffect();
 newGame();
 </script>
 
 </body>
 </html>
-"""
-
-path = Path("/mnt/data/mini-sudoku-header-button-effects.html")
-path.write_text(html, encoding="utf-8")
-print(path)
